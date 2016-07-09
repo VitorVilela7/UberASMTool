@@ -176,7 +176,7 @@ namespace UberASMTool
 						{
 							Console.WriteLine("  Inserted at ${0:X6} (PC: 0x{1:x})", startPc,
 								SNES.ToPCHeadered(startPc, rom.containsHeader));
-							Console.WriteLine("  Insert size: {0} (0x{0:X} bytes)", endPc - startPc + 8);
+							Console.WriteLine("  Insert size: {0} (0x{0:X}) bytes", endPc - startPc + 8);
 						}
 
 						totalInsertSize += endPc - startPc + 8;
@@ -1215,7 +1215,7 @@ namespace UberASMTool
 				{
 					Console.WriteLine("  Inserted at ${0:X6} (PC: 0x{1:x})",
 						start, SNES.ToPCHeadered(start, rom.containsHeader));
-					Console.WriteLine("  Insert size: {0} (0x{0:X} bytes)", end - start + 8);
+					Console.WriteLine("  Insert size: {0} (0x{0:X}) bytes", end - start + 8);
 				}
 
 				totalInsertSize += end - start + 8;
@@ -1469,7 +1469,7 @@ namespace UberASMTool
 
 			if (verbose)
 			{
-				Console.WriteLine("Total files insert size: {0} (0x{0:X4}) bytes.", totalInsertSize);
+				Console.WriteLine("Total files insert size: {0} (0x{0:X4}) bytes", totalInsertSize);
 			}
 
 			if (Asar.patch("asm/main.asm", ref rom.romData))
@@ -1491,9 +1491,9 @@ namespace UberASMTool
 					}
 					else if (int.TryParse(prints[i], out insertSize) && verbose)
 					{
-						Console.WriteLine("Main patch insert size: {0} (0x{0:X4}) bytes.", insertSize);
+						Console.WriteLine("Main patch insert size: {0} (0x{0:X4}) bytes", insertSize);
 						Console.WriteLine();
-						Console.WriteLine("Total: {0} (0x{0:X4}) bytes.", insertSize + totalInsertSize);
+						Console.WriteLine("Total: {0} (0x{0:X4}) bytes", insertSize + totalInsertSize);
 						Console.WriteLine();
 						printed = true;
 					}
@@ -1504,7 +1504,7 @@ namespace UberASMTool
 					Console.WriteLine();
 				}
 
-				Console.WriteLine("Done.");
+				Console.WriteLine("Codes inserted successfully.");
 				rom.Save();
 
 				// create LM restore information
