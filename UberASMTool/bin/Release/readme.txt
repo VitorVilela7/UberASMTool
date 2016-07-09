@@ -4,7 +4,7 @@
 | |  | | '_ \ / _ \ '__/ /\ \  \___ \| |\/| |    | |/ _ \ / _ \| |
 | |__| | |_) |  __/ | / ____ \ ____) | |  | |    | | (_) | (_) | |
  \____/|_.__/ \___|_|/_/    \_\_____/|_|  |_|    |_|\___/ \___/|_|
-         VERSION 1.0                BY VITOR VILELA
+         VERSION 1.1                BY VITOR VILELA
 
 Thank you for downloading my tool. I hope it helps you though your
 SMW hacking journey.
@@ -21,7 +21,7 @@ worrying about freespace and bank overflows.
 
 Features:
  - Level ASM (INIT/MAIN/NMI*/LOAD*)
- - Overworld ASM (INIT/MAIN/NMI*)
+ - Overworld ASM (INIT/MAIN/NMI*/LOAD*)
  - Game mode ASM (INIT/MAIN/NMI*)
  - Global code ASM (INIT*/MAIN/NMI)
  - Status bar code (MAIN)
@@ -37,11 +37,26 @@ Features:
 * Specific features not present in original uberASM patch.
 
 ---------------------------------------------------------------------
+-                         Version History                           -
+---------------------------------------------------------------------
+
+Version 1.1:
+ - Added global_load support.
+ - Added more error checks for avoiding free space leaking when user
+wrongly uses pullpc/pushpc.
+ - Fixed program crashing when running on a Dropbox folder.
+ - Fixed minor display/print changes when running program.
+ - Fixed minor grammar errors.
+
+Version 1.0:
+ - First Public Release
+
+---------------------------------------------------------------------
 -                         Getting Started                           -
 ---------------------------------------------------------------------
 
 Since UberASM Tool relies on Asar and pretty much uses same hijacks,
-you can safely apply it on your ROM even if you user uberASM or
+you can safely apply it on your ROM even if you used uberASM or
 levelASM patch previously. Be sure to make a backup of your ROM
 before just to you be sure.
 
@@ -227,9 +242,9 @@ generate a new RATS tag, which is 8 bytes big, slight reducing the
 overall free space from the ROM. But that should not be a big issue.
 
 Another thing you have to keep in mind that every code must return
-with RTL and not RTS. Data bank is set up automatically, *except* for
-NMI code and library calls, since they're called directly from your
-code.
+with RTL and not RTS. Data bank is set up automatically, *except*
+for NMI code, global code and library calls, since they're called
+directly from your code.
 
 ---------------------------------------------------------------------
 -                         NMI Code Support                          -
@@ -246,8 +261,9 @@ demand.
 -                   "Load" Level Code Support                       -
 ---------------------------------------------------------------------
 
-UberASM Tool also features the "load:" label for levelASM code. That
-label is trigged before "init:", when the level has not loaded yet.
+UberASM Tool also features the "load:" label for levelASM and global
+code. That label is trigged before "init:", when the level has not
+loaded yet.
 
 It allows you to set up Lunar Magic's Conditional Direct Map16
 feature and initialize other flags (ExAnimation triggers, etc.). As
@@ -312,7 +328,6 @@ will generate nor what labels each library .asm file will depend from
 each other. So unfortunately the library files are pretty much
 isolated from each one.
 
-
 ---------------------------------------------------------------------
 -                         Other Information                         -
 ---------------------------------------------------------------------
@@ -342,11 +357,12 @@ Data bank is set up automatically for init and main labels.
 
 For Global Code, the following labels are available:
 
+load:
 init:
 main:
 nmi:
 
-However they should return by RTS and not RTL. Data bank is not set
+However they should return with RTS and not RTL. Data bank is not set
 up automatically.
 
 For Status Code, the only label available is "main:". Data bank is
@@ -356,37 +372,7 @@ When UberASM Tool is executed, a .extmod file is automatically
 generated. This file is used by Lunar Magic to know what external
 program modified the ROM and is registered on LM Restored System.
 
-UberASM Tool supports unheadered ROMs.
-
-SA-1 Processor Information:
-
-  Level:
-    Load: Executed by SNES CPU.
-    Init: Executed by SNES CPU.
-    Main: Executed by SNES CPU.
-    NMI: Executed by SNES CPU (V-Blank).
-
-  Overworld:
-    Init: Executed by SNES CPU.
-    Main: Executed by SNES CPU.
-    NMI: Executed by SNES CPU (V-Blank).
-
-  Game Mode:
-    Init: Executed by SNES CPU.
-    Main: Executed by SNES CPU.
-    NMI: Executed by SNES CPU (V-Blank).
-
-  Global:
-    Init: Executed by SNES CPU.
-    Main: Executed by SNES CPU.
-    NMI: Executed by SNES CPU (V-Blank).
-
-  Status Bar:
-    Main: Executed by SNES CPU.
-
-In other words, all labels are executed by the SNES CPU. In case you
-want SA-1's speed, then you must invoke it. You can use the included
-macro %invoke_sa1(label) to call SA-1 CPU.
+UberASM Tool does support unheadered ROMs.
 
 ---------------------------------------------------------------------
 -                             Credits                               -
@@ -394,7 +380,7 @@ macro %invoke_sa1(label) to call SA-1 CPU.
 
 I'd like to thank:
  - edit1754 for the original LevelASM Tool idea;
- - p4plus2 for the uberASM patch;
+ - p4plus2 for the original uberASM patch;
  - Alcaro/byuu/Raidenthequick for Asar; and
  - 33953YoShI/Mirann/Wakana for testing.
  - 33953YoShI again for giving me the LOAD label base hijack and idea.
