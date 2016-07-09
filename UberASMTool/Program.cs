@@ -172,6 +172,20 @@ namespace UberASMTool
 							return;
 						}
 
+						if (endPc - startPc < 0)
+						{
+							Console.WriteLine("  {0}: error: Negative insert size. " +
+								"Did you change program counter without pushpc/pullpc?", code.Path);
+							error = true;
+							return;
+						}
+						else if (endPc - startPc == 0)
+						{
+							Console.WriteLine("  {0}: error: Null (0 byte insert size) file.", code.Path);
+							error = true;
+							return;
+						}
+
 						if (verbose)
 						{
 							Console.WriteLine("  Inserted at ${0:X6} (PC: 0x{1:x})", startPc,
