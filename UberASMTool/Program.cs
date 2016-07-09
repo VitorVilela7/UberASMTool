@@ -6,6 +6,7 @@ using System.IO;
 using AsarCLR;
 using Tessera;
 using System.Reflection;
+using System.Threading;
 
 namespace UberASMTool
 {
@@ -439,7 +440,29 @@ namespace UberASMTool
 				insertTable(ref assemblyData, nmiTable, nmiPointerList.ToString());
 			}
 
-			File.WriteAllText(baseTempFile, assemblyData);
+			for (int i = 0; i < 1000; ++i)
+			{
+				try
+				{
+					File.WriteAllText(baseTempFile, assemblyData);
+					break;
+				}
+				catch
+				{
+					if (i == 999)
+					{
+						Console.WriteLine("  Error: access denied while creating base temp file.", baseTempFile);
+						error = true;
+						throw;
+					}
+
+					Thread.Sleep(10);
+				}
+				if (i == 999)
+				{
+					throw new Exception();
+				}
+			}
 
 			if (verbose)
 			{
@@ -516,17 +539,53 @@ namespace UberASMTool
 			string realFile = baseFolder + "__temp.asm";
 			string compileFile = originalFile;
 
-			File.WriteAllText(realFile, generateBasefile(data, library, realFile, originFolder));
+			for (int i = 0; i < 1000; ++i)
+			{
+				try
+				{
+					File.WriteAllText(realFile, generateBasefile(data, library, realFile, originFolder));
+					break;
+				}
+				catch
+				{
+					if (i == 999)
+					{
+						Console.WriteLine("  Error: access denied while creating temporary file {0}.", realFile);
+						error = true;
+						throw;
+					}
+
+					Thread.Sleep(10);
+				}
+				if (i == 999)
+				{
+					throw new Exception();
+				}
+			}
 
 			bool status = Asar.patch(realFile, ref rom.romData);
 
-			try
+			for (int i = 0; i < 1000; ++i)
 			{
-				File.Delete(realFile);
-			}
-			catch
-			{
-				Console.WriteLine("  Warning: could not delete temporary file {0}.", realFile);
+				try
+				{
+					File.Delete(realFile);
+					break;
+				}
+				catch
+				{
+					if (i == 999)
+					{
+						Console.WriteLine("  Warning: could not delete temporary file {0}.", realFile);
+						throw;
+					}
+
+					Thread.Sleep(10);
+				}
+				if (i == 999)
+				{
+					throw new Exception();
+				}
 			}
 
 			foreach (var warn in Asar.getwarnings())
@@ -943,7 +1002,30 @@ namespace UberASMTool
 
 			var temp = current.Insert(0, "lorom\r\norg $108000");
 
-			File.WriteAllText("asm/temp.asm", temp);
+			for (int i = 0; i < 1000; ++i)
+			{
+				try
+				{
+					File.WriteAllText("asm/temp.asm", temp);
+					break;
+				}
+				catch
+				{
+					if (i == 999)
+					{
+						Console.WriteLine("  Error: access denied while creating temporary file {0}.", temp);
+						error = true;
+						throw;
+					}
+
+					Thread.Sleep(10);
+				}
+				if (i == 999)
+				{
+					throw new Exception();
+				}
+			}
+
 			Asar.patch("asm/temp.asm", ref tempBuffer);
 			var ptr = getPointers(false);
 			enableNmi[3] = ptr[2] != 0;
