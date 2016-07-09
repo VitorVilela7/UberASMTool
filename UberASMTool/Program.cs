@@ -217,9 +217,9 @@ namespace UberASMTool
 						{
 							initPointerList.Append("null_pointer");
 						}
-						else if (pointers[0] >= endPc)
+						else if (pointers[0] >= endPc || pointers[0] < startPc)
 						{
-							Console.WriteLine("  {0}: error: INIT label at the end of the file.", code.Path);
+							Console.WriteLine("  {0}: error: INIT label outside free space range.", code.Path);
 							error = true;
 							return;
 						}
@@ -234,9 +234,9 @@ namespace UberASMTool
 						{
 							mainPointerList.Append("null_pointer");
 						}
-						else if (pointers[1] >= endPc)
+						else if (pointers[1] >= endPc || pointers[1] < startPc)
 						{
-							Console.WriteLine("  {0}: error: MAIN label at the end of the file.", code.Path);
+							Console.WriteLine("  {0}: error: MAIN label outside free space range.", code.Path);
 							error = true;
 							return;
 						}
@@ -251,9 +251,9 @@ namespace UberASMTool
 						{
 							loadPointerList.Append("null_pointer");
 						}
-						else if (pointers[3] >= endPc)
+						else if (pointers[3] >= endPc || pointers[3] < startPc)
 						{
-							Console.WriteLine("  {0}: error: LOAD label at the end of the file.", code.Path);
+							Console.WriteLine("  {0}: error: LOAD label outside free space range.", code.Path);
 							error = true;
 							return;
 						}
@@ -268,9 +268,9 @@ namespace UberASMTool
 						{
 							nmiPointerList.Append("null_pointer");
 						}
-						else if (pointers[2] >= endPc)
+						else if (pointers[2] >= endPc || pointers[2] < startPc)
 						{
-							Console.WriteLine("  {0}: error: NMI label at the end of the file.", code.Path);
+							Console.WriteLine("  {0}: error: NMI label outside free space range.", code.Path);
 							error = true;
 							return;
 						}
