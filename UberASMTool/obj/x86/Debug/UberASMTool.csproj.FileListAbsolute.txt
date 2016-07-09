@@ -1,0 +1,6 @@
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Debug\asar.dll
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Debug\UberASMTool.exe
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Debug\UberASMTool.pdb
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\obj\x86\Debug\UberASMTool.exe
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\obj\x86\Debug\UberASMTool.pdb
+C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\obj\x86\Debug\UberASMTool.csprojResolveAssemblyReference.cache
