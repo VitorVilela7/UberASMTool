@@ -8,6 +8,10 @@ ORG $008176
 	autoclean JML nmi_hijack
 	NOP #2
 	
+ORG $05808C
+	JML load
+	NOP
+	
 freecode
 	
 ; Do not edit nor move that.
@@ -55,6 +59,30 @@ _global_main:
 	
 	JML $00806F|!bank
 
+load:
+	PHB
+	SEP #$30
+	JSR global_load
+	REP #$30
+	LDA !level
+	ASL
+	ADC !level
+	TAX
+	LDA.l level_load_table,x
+	STA $00
+	LDA.l level_load_table+1,x
+	JSL run_code
+	PLB
+	REP #$10
+	PHK
+	PEA.w .return-1
+	PEA.w $058125-1
+	JML $0583AC|!bank
+.return
+	SEP #$30
+	JML $058091|!bank
+
+	
 nmi_hijack:
 	LDA $4210	; This is SNES hardware stuff, so don't remove it please.
 	

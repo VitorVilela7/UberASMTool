@@ -33,10 +33,6 @@ ORG $00A295
 ORG $00A5EE
         autoclean JML init
 
-ORG $05808C
-	autoclean JML load
-	NOP
-
 freecode
 
 ;Editing or moving these tables breaks things. don't.
@@ -89,27 +85,6 @@ init:
 .return
 	JML $00A5F3|!bank
 	
-load:
-	REP #$20
-	PHB
-	LDA !level
-	ASL
-	ADC !level
-	TAX
-	LDA.l level_load_table,x
-	STA $00
-	LDA.l level_load_table+1,x
-	JSL run_code
-	PLB
-	REP #$10
-	PHK
-	PEA.w .return-1
-	PEA.w $058125-1
-	JML $0583AC|!bank
-.return
-	SEP #$30
-	JML $058091|!bank
-
 run_code:
 	STA $01
 	PHA
