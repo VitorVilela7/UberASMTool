@@ -150,14 +150,16 @@ nmi_hijack:
 		STA $6E
 		LDA.l level_nmi_table+1,x
 		JSL nmi_run_code
+
+		BRA +++ ; return
 		
-		LDA $1DFB|!addr	; return
-		JML $00817C
+	;	LDA $1DFB|!addr	; return
+	;	JML $00817C
 	
 	+	CMP #$0D
 		BEQ ++
 		CMP #$0E
-		BNE +
+		BNE +++
 		
 	++	LDX $0DB3|!addr
 		LDA $1F11|!addr,x
@@ -169,7 +171,7 @@ nmi_hijack:
 		STA $6E
 		LDA.l OW_nmi_table+1,x
 		JSL nmi_run_code
-	+
+	+++
 	endif
 	
 	if !level_nmi == 0 && !overworld_nmi == 1
