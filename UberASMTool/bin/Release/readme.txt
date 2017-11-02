@@ -4,7 +4,7 @@
 | |  | | '_ \ / _ \ '__/ /\ \  \___ \| |\/| |    | |/ _ \ / _ \| |
 | |__| | |_) |  __/ | / ____ \ ____) | |  | |    | | (_) | (_) | |
  \____/|_.__/ \___|_|/_/    \_\_____/|_|  |_|    |_|\___/ \___/|_|
-         VERSION 1.1                BY VITOR VILELA
+         VERSION 1.2                BY VITOR VILELA
 
 Thank you for downloading my tool. I hope it helps you though your
 SMW hacking journey.
@@ -40,6 +40,10 @@ Features:
 -                         Version History                           -
 ---------------------------------------------------------------------
 
+Version 1.2:
+- Added sprite defines with SA-1 support.
+- Fixed a crash when using both Level NMI and Overworld NMI
+- Fixed some unintended behavior when enabling only Overworld NMI.
 Version 1.1:
  - Added global_load support.
  - Added more error checks for avoiding free space leaking when user

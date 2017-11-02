@@ -96,7 +96,7 @@ nmi_hijack:
 	; I guess I could have done this better, like pre-storing the tables into RAM during INIT or like,
 	; however I wanted to all hacks have minimum safetly to this run properly, so I decided to use
 	; temporary memory instead.
-	if !gamemode_nmi == 1 || !level_nmi == 1 || !gamemode_nmi == 1
+	if !gamemode_nmi == 1 || !level_nmi == 1 || !overworld_nmi == 1
 		PEI ($6E)
 		PEI ($70)
 	endif
@@ -150,16 +150,14 @@ nmi_hijack:
 		STA $6E
 		LDA.l level_nmi_table+1,x
 		JSL nmi_run_code
-
-		BRA +++ ; return
 		
-	;	LDA $1DFB|!addr	; return
-	;	JML $00817C
+		LDA $1DFB|!addr	; return
+		JML $00817C
 	
 	+	CMP #$0D
 		BEQ ++
 		CMP #$0E
-		BNE +++
+		BNE +
 		
 	++	LDX $0DB3|!addr
 		LDA $1F11|!addr,x
@@ -171,7 +169,7 @@ nmi_hijack:
 		STA $6E
 		LDA.l OW_nmi_table+1,x
 		JSL nmi_run_code
-	+++
+	+
 	endif
 	
 	if !level_nmi == 0 && !overworld_nmi == 1
@@ -195,7 +193,7 @@ nmi_hijack:
 	+
 	endif
 	
-	if !gamemode_nmi == 1 || !level_nmi == 1 || !gamemode_nmi == 1
+	if !gamemode_nmi == 1 || !level_nmi == 1 || !overworld_nmi == 1
 		REP #$20
 		PLA
 		STA $70
