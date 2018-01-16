@@ -1,5 +1,0 @@
-C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Release\asar.dll
-C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Release\UberASMTool.exe
-C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\bin\Release\UberASMTool.pdb
-C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\obj\x86\Release\UberASMTool.exe
-C:\Users\Vitor\documents\visual studio 2010\Projects\UberASMTool\UberASMTool\obj\x86\Release\UberASMTool.pdb

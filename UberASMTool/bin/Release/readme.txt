@@ -42,8 +42,10 @@ Features:
 
 Version 1.2:
 - Added sprite defines with SA-1 support.
-- Fixed a crash when using both Level NMI and Overworld NMI
+- Fixed a crash when using both Level NMI and Overworld NMI.
 - Fixed some unintended behavior when enabling only Overworld NMI.
+- (RPG Hacker) Now uses Asar 1.50.
+
 Version 1.1:
  - Added global_load support.
  - Added more error checks for avoiding free space leaking when user

@@ -8,55 +8,61 @@ namespace AsarCLR
     /// </summary>
     public static unsafe class Asar
     {
-        const int expectedapiversion=200;
+        const int expectedapiversion=300;
 
-		[DllImport("asar", EntryPoint = "asar_init", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_init", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool asar_init();
 
-		[DllImport("asar", EntryPoint = "asar_close", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_close", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool asar_close();
 
-		[DllImport("asar", EntryPoint = "asar_version", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_version", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern int asar_version();
 
-		[DllImport("asar", EntryPoint = "asar_apiversion", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_apiversion", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern int asar_apiversion();
 
-		[DllImport("asar", EntryPoint = "asar_reset", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_reset", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool asar_reset();
 
-		[DllImport("asar", EntryPoint = "asar_patch", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_patch", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool asar_patch(string patchLocation, byte* romData, int bufLen, int* romLength);
 
-		[DllImport("asar", EntryPoint = "asar_maxromsize", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_maxromsize", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern int asar_maxromsize();
 
-		[DllImport("asar", EntryPoint = "asar_geterrors", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_geterrors", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern Rawasarerror* asar_geterrors(out int length);
 
-		[DllImport("asar", EntryPoint = "asar_getwarnings", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getwarnings", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern Rawasarerror* asar_getwarnings(out int length);
 
-		[DllImport("asar", EntryPoint = "asar_getprints", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getprints", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void** asar_getprints(out int length);
 
-		[DllImport("asar", EntryPoint = "asar_getalllabels", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getalllabels", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern Rawasarlabel* asar_getalllabels(out int length);
 
-		[DllImport("asar", EntryPoint = "asar_getlabelval", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getlabelval", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern int asar_getlabelval(string labelName);
 
-		[DllImport("asar", EntryPoint = "asar_getdefine", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getdefine", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr asar_getdefine(string defineName);
 
-		[DllImport("asar", EntryPoint = "asar_getalldefines", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_getalldefines", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern Rawasardefine* asar_getalldefines(out int length);
 
-		[DllImport("asar", EntryPoint = "asar_resolvedefines", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_resolvedefines", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr asar_resolvedefines(string data, bool learnNew);
 
-		[DllImport("asar", EntryPoint = "asar_math", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("asar", EntryPoint = "asar_math", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern double asar_math(string math, out IntPtr error);
+
+        [DllImport("asar", EntryPoint = "asar_getwrittenblocks", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern Rawasarwrittenblock* asar_getwrittenblocks(out int length);
+
+        [DllImport("asar", EntryPoint = "asar_getmapper", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern MapperType asar_getmapper();
 
         /// <summary>
         /// Loads and initializes the DLL. You must call this before using any other Asar function.
@@ -70,6 +76,14 @@ namespace AsarCLR
                 return true;
             }
             catch { return false; }
+        }
+
+        /// <summary>
+        /// Closes Asar DLL. Call this when you're done using Asar functions.
+        /// </summary>
+        public static void close()
+        {
+            asar_close();
         }
 
         /// <summary>
@@ -308,6 +322,51 @@ namespace AsarCLR
             return value;
         }
 
+
+        [StructLayout(LayoutKind.Sequential)]
+        private unsafe struct Rawasarwrittenblock
+        {
+            public int pcoffset;
+            public int snesoffset;
+            public int numbytes;
+        };
+
+        private static Asarwrittenblock[] cleanwrittenblocks(Rawasarwrittenblock* ptr, int length)
+        {
+            Asarwrittenblock[] output = new Asarwrittenblock[length];
+
+            // Better create a new array
+            // to avoid pointer erros, corruption and may other problems.
+            for (int i = 0; i < length; i++)
+            {
+                output[i].Snesoffset = ptr[i].snesoffset;
+                output[i].Numbytes = ptr[i].numbytes;
+                output[i].Pcoffset = ptr[i].pcoffset;
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Gets all Asar blocks written to the ROM. They're safe to keep for as long as you want.
+        /// </summary>
+        /// <returns>All Asar's blocks written to the ROM.</returns>
+        public static Asarwrittenblock[] getwrittenblocks()
+        {
+            int length = 0;
+            Rawasarwrittenblock* ptr = asar_getwrittenblocks(out length);
+            return cleanwrittenblocks(ptr, length);
+        }
+
+        /// <summary>
+        /// Gets mapper currently used by Asar.
+        /// </summary>
+        /// <returns>Returns mapper currently used by Asar.</returns>
+        public static MapperType getmapper()
+        {
+            MapperType mapper = asar_getmapper();
+            return mapper;
+        }
     }
 
     /// <summary>
@@ -331,35 +390,6 @@ namespace AsarCLR
     {
         public String Name;
         public int Location;
-		
-		public override bool Equals(object obj)
-		{
-			if (!(obj is Asarlabel))
-			{
-				return false;
-			}
-
-			Asarlabel v = (Asarlabel)obj;
-
-			if (v.Name != Name) return false;
-			if (v.Location != Location) return false;
-			return true;
-		}
-
-		public override int GetHashCode()
-		{
-			return Name.GetHashCode() + Location.GetHashCode();
-		}
-
-		public static bool operator ==(Asarlabel a1, Asarlabel a2)
-		{
-			return a1.Equals(a2);
-		}
-
-		public static bool operator !=(Asarlabel a1, Asarlabel a2)
-		{
-			return !a1.Equals(a2);
-		}
     }
 
     /// <summary>
@@ -369,5 +399,66 @@ namespace AsarCLR
     {
         public String Name;
         public String Contents;
+    }
+
+    /// <summary>
+    /// Contains full information on a block written to the ROM.
+    /// </summary>
+    public struct Asarwrittenblock
+    {
+        public int Pcoffset;
+        public int Snesoffset;
+        public int Numbytes;
+    }
+
+    /// <summary>
+    /// Defines the mapper used by the assembler.
+    /// </summary>
+    public enum MapperType
+    {
+        /// <summary>
+        /// Invalid
+        /// </summary>
+        InvalidMapper,
+
+        /// <summary>
+        /// LoROM
+        /// </summary>
+        LoRom,
+
+        /// <summary>
+        /// HiROM
+        /// </summary>
+        HiRom,
+
+        /// <summary>
+        /// SA-1 ROM
+        /// </summary>
+        Sa1Rom,
+
+        /// <summary>
+        /// Big SA-1 ROM
+        /// </summary>
+        BigSa1Rom,
+
+        /// <summary>
+        /// SFX ROM
+        /// </summary>
+        SfxRom,
+
+        /// <summary>
+        /// ExLoROM
+        /// </summary>
+        ExLoRom,
+
+        /// <summary>
+        /// ExHiROM
+        /// </summary>
+        ExHiRom,
+
+        /// <summary>
+        /// No ROM
+        /// </summary>
+        NoRom
     }
 }
