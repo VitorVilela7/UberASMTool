@@ -239,3 +239,6 @@ paket-files/
 .idea/
 *.sln.iml
 *.suo
+
+# obj directory
+obj/
