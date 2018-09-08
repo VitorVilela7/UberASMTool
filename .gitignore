@@ -244,4 +244,4 @@ paket-files/
 obj/
 
 # Debug builds
-bin/Debug/
+Debug/
