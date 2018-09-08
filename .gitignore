@@ -242,3 +242,6 @@ paket-files/
 
 # obj directory
 obj/
+
+# Debug builds
+bin/Debug/
