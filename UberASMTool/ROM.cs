@@ -6,7 +6,7 @@ using System.IO;
 // etc.
 
 
-namespace Tessera
+namespace UberASMTool
 {
     class ROM
     {
