@@ -1436,6 +1436,12 @@ namespace UberASMTool
 			Console.WriteLine();
 		}
 
+		private static void Pause()
+		{
+			Console.Write("Press any key to continue...");
+			Console.ReadKey(true);
+		}
+
 		static void Main(string[] args)
 		{
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
@@ -1444,7 +1450,7 @@ namespace UberASMTool
 			{
 				Console.WriteLine("Could not initialize or find asar.dll");
 				Console.WriteLine("Please redownload the program.");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
@@ -1456,8 +1462,7 @@ namespace UberASMTool
 				
 				if (args.Length > 2)
 				{
-					Console.Write("Press any key to continue...");
-					Console.ReadKey(true);
+					Pause();
 					return;
 				}
 			}
@@ -1473,8 +1478,7 @@ namespace UberASMTool
 				catch (Exception ex)
 				{
 					Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
-					Console.Write("Press any key to continue...");
-					Console.ReadKey(true);
+					Pause();
 					return;
 				}
 			}
@@ -1488,8 +1492,7 @@ namespace UberASMTool
 				catch(Exception ex)
 				{
 					Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
-					Console.Write("Press any key to continue...");
-					Console.ReadKey(true);
+					Pause();
 					return;
 				}
 			}
@@ -1500,8 +1503,7 @@ namespace UberASMTool
 			else
 			{
 				Console.WriteLine("list.txt not found.");
-				Console.Write("Press any key to continue...");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
@@ -1513,16 +1515,14 @@ namespace UberASMTool
 
 			if (error)
 			{
-				Console.Write("Press any key to continue...");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
 			if (romPath == null)
 			{
 				Console.WriteLine("ROM file not given.");
-				Console.Write("Press any key to continue...");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
@@ -1535,8 +1535,7 @@ namespace UberASMTool
 			catch (Exception ex)
 			{
 				Console.WriteLine("Error: {0}", ex.Message);
-				Console.Write("Press any key to continue...");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
@@ -1557,8 +1556,7 @@ namespace UberASMTool
 
 			if (error)
 			{
-				Console.Write("Press any key to continue...");
-				Console.ReadKey(true);
+				Pause();
 				return;
 			}
 
@@ -1635,8 +1633,7 @@ namespace UberASMTool
 				Console.WriteLine("Your ROM wasn't modified.");
 			}
 
-			Console.Write("Press any key to continue...");
-			Console.ReadKey(true);
+			Pause();
 		}
 	}
 }
