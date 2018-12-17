@@ -50,7 +50,7 @@ namespace UberASMTool
 		/// </summary>
 		private static List<int> protPointerList = new List<int>();
 
-		private static void addLevelCode(string path, int level, int type)
+		private static void AddLevelCode(string path, int level, int type)
 		{
 			if (list[type][level] != 0)
 			{
@@ -73,7 +73,7 @@ namespace UberASMTool
 			}
 		}
 
-		private static int[] getPointers(bool load)
+		private static int[] GetPointers(bool load)
 		{
 			var labels = Asar.getlabels();
 			int[] output = new int[4];
@@ -99,7 +99,7 @@ namespace UberASMTool
 			}
 		}
 
-		private static void buildASM(string asmPath, int maxItems, int mode,
+		private static void BuildAsm(string asmPath, int maxItems, int mode,
 			string initTable, string mainTable, string nmiTable, string loadTable)
 		{
 			if (error)
@@ -167,7 +167,7 @@ namespace UberASMTool
 
 					if (!code.Inserted)
 					{
-						if (!compileFile(levelContents, baseFolder, code.Path, baseFolder, true, out startPc, out endPc))
+						if (!CompileFile(levelContents, baseFolder, code.Path, baseFolder, true, out startPc, out endPc))
 						{
 							return;
 						}
@@ -195,7 +195,7 @@ namespace UberASMTool
 
 						totalInsertSize += endPc - startPc + 8;
 
-						var pointers = getPointers(loadTable == null ? false : true);
+						var pointers = GetPointers(loadTable == null ? false : true);
 
 						if (pointers == null)
 						{
@@ -427,16 +427,16 @@ namespace UberASMTool
 				loadPointerList.AppendLine();
 			}
 
-			insertTable(ref assemblyData, initTable, initPointerList.ToString());
-			insertTable(ref assemblyData, mainTable, mainPointerList.ToString());
+			InsertTable(ref assemblyData, initTable, initPointerList.ToString());
+			InsertTable(ref assemblyData, mainTable, mainPointerList.ToString());
 			if (loadTable != null)
 			{
-				insertTable(ref assemblyData, loadTable, loadPointerList.ToString());
+				InsertTable(ref assemblyData, loadTable, loadPointerList.ToString());
 			}
 
 			if (enableNmi[mode])
 			{
-				insertTable(ref assemblyData, nmiTable, nmiPointerList.ToString());
+				InsertTable(ref assemblyData, nmiTable, nmiPointerList.ToString());
 			}
 
 			for (int i = 0; i < 1000; ++i)
@@ -482,7 +482,7 @@ namespace UberASMTool
 			}
 		}
 
-		private static void insertTable(ref string asmFile, string label, string table)
+		private static void InsertTable(ref string asmFile, string label, string table)
 		{
 			int index = asmFile.IndexOf(label + ":");
 
@@ -496,7 +496,7 @@ namespace UberASMTool
 			asmFile = asmFile.Insert(index, "\r\n" + table);
 		}
 
-		private static int directoryDepth(string fileName, string directoryBase)
+		private static int DirectoryDepth(string fileName, string directoryBase)
 		{
 			string path1 = Path.GetFullPath(directoryBase);
 			string path2 = Path.GetFullPath(fileName);
@@ -506,15 +506,15 @@ namespace UberASMTool
 			return path2.Substring(path1.Length).Split(separators, StringSplitOptions.RemoveEmptyEntries).Length;
 		}
 
-		private static string fixPath(string fileName, string directoryBase)
+		private static string FixPath(string fileName, string directoryBase)
 		{
-			int depth = directoryDepth(fileName, directoryBase);
+			int depth = DirectoryDepth(fileName, directoryBase);
 			return String.Join("", Enumerable.Repeat("../", depth));
 		}
 
-		private static string generateBasefile(string input, bool library, string fileName, string directoryBase)
+		private static string GenerateBasefile(string input, bool library, string fileName, string directoryBase)
 		{
-			string fix = fixPath(fileName, directoryBase);
+			string fix = FixPath(fileName, directoryBase);
 			StringBuilder output = new StringBuilder();
 
 			if (library)
@@ -529,7 +529,7 @@ namespace UberASMTool
 			return output.ToString();
 		}
 
-		private static bool compileFile(string data, string baseFolder, string originalFile, string originFolder,
+		private static bool CompileFile(string data, string baseFolder, string originalFile, string originFolder,
 			bool library, out int startPc, out int endPc)
 		{
 			endPc = -1;
@@ -542,7 +542,7 @@ namespace UberASMTool
 			{
 				try
 				{
-					File.WriteAllText(realFile, generateBasefile(data, library, realFile, originFolder));
+					File.WriteAllText(realFile, GenerateBasefile(data, library, realFile, originFolder));
 					break;
 				}
 				catch
@@ -694,7 +694,7 @@ namespace UberASMTool
 			return true;
 		}
 
-		static void parseList()
+		static void ParseList()
 		{
 			// 0 = level, 1 = ow, 2 = gamemode
 			int mode = -1;
@@ -951,7 +951,7 @@ namespace UberASMTool
 
 				try
 				{
-					addLevelCode(value, hexValue, mode);
+					AddLevelCode(value, hexValue, mode);
 					continue;
 				}
 				catch (Exception ex)
@@ -988,7 +988,7 @@ namespace UberASMTool
 			}
 		}
 
-		static void buildOther()
+		static void BuildOther()
 		{
 			if (error)
 			{
@@ -1026,7 +1026,7 @@ namespace UberASMTool
 			}
 
 			Asar.patch("asm/temp.asm", ref tempBuffer);
-			var ptr = getPointers(false);
+			var ptr = GetPointers(false);
 			enableNmi[3] = ptr[2] != 0;
 
 			current = current.Insert(0, "\r\nnamespace global\r\n");
@@ -1044,7 +1044,7 @@ namespace UberASMTool
 				protList.AppendLine();
 			}
 
-			insertTable(ref global, "prot_table", protList.ToString());
+			InsertTable(ref global, "prot_table", protList.ToString());
 
 			File.WriteAllText("asm/global.asm", global);
 
@@ -1089,16 +1089,16 @@ namespace UberASMTool
 			File.WriteAllText("asm/main.asm", mainFile.ToString());
 		}
 
-		private static void checkPreviousData()
+		private static void CheckPreviousData()
 		{
 			//gamemode - $009322+1
 			//levelASM - $00A242+1
 			//overworld - $00A1C3+1
 			//global - $00804E+1
 
-			cleanPointerTable(0x1323, 256, false);
-			cleanPointerTable(0x2243, 512, true);
-			cleanPointerTable(0x21C4, 7, false);
+			CleanPointerTable(0x1323, 256, false);
+			CleanPointerTable(0x2243, 512, true);
+			CleanPointerTable(0x21C4, 7, false);
 
 			int total = freespacePointerList.Count;
 
@@ -1117,7 +1117,7 @@ namespace UberASMTool
 			}
 
 			// clear external pointer table
-			int ptr = checkPointer(0x4F);
+			int ptr = CheckPointer(0x4F);
 
 			if (ptr == -1)
 			{
@@ -1126,7 +1126,7 @@ namespace UberASMTool
 
 			ptr -= 3;
 
-			while (!checkForUberSignature(ptr - 1))
+			while (!CheckForUberSignature(ptr - 1))
 			{
 				int pointer = rom.Read24(ptr);
 				if (!freespacePointerList.Contains(pointer))
@@ -1158,13 +1158,13 @@ namespace UberASMTool
 			}
 		}
 
-		private static bool checkForUberSignature(int ptr)
+		private static bool CheckForUberSignature(int ptr)
 		{
 			var str = rom.ReadBlock(ptr, 4);
 			return (str[0] == (byte)'u' && str[1] == (byte)'b' && str[2] == (byte)'e' && str[3] == (byte)'r');
 		}
 
-		private static int checkPointer(int offset)
+		private static int CheckPointer(int offset)
 		{
 			int ptr = SNES.ToPC(rom.Read24(offset));
 			
@@ -1186,9 +1186,9 @@ namespace UberASMTool
 			return ptr;
 		}
 
-		private static void cleanPointerTable(int offset, int pointerCount, bool ext)
+		private static void CleanPointerTable(int offset, int pointerCount, bool ext)
 		{
-			int ptr = checkPointer(offset);
+			int ptr = CheckPointer(offset);
 
 			if (ptr == -1)
 			{
@@ -1201,7 +1201,7 @@ namespace UberASMTool
 			bool load = false;
 
 		scan:
-			if (!checkForUberSignature(ptr - 4))
+			if (!CheckForUberSignature(ptr - 4))
 			{
 				if (load)
 				{
@@ -1247,7 +1247,7 @@ namespace UberASMTool
 			}
 		}
 
-		private static void buildLibrary()
+		private static void BuildLibrary()
 		{
 			if (verbose)
 			{
@@ -1290,7 +1290,7 @@ namespace UberASMTool
 
 				if (!binaryMode)
 				{
-					if (!compileFile(File.ReadAllText(asmFile), baseFolder, fileName, "./library", false, out start, out end))
+					if (!CompileFile(File.ReadAllText(asmFile), baseFolder, fileName, "./library", false, out start, out end))
 					{
 						return;
 					}
@@ -1300,7 +1300,7 @@ namespace UberASMTool
 					string baseAssembly = labelLevel +
 						":\r\nincbin \"" + fileName + "\"\r\n";
 
-					if (!compileFile(baseAssembly, baseFolder, fileName, "./library", false, out start, out end))
+					if (!CompileFile(baseAssembly, baseFolder, fileName, "./library", false, out start, out end))
 					{
 						return;
 					}
@@ -1408,7 +1408,7 @@ namespace UberASMTool
 			}
 		}
 
-		private static void generateLibrary()
+		private static void GenerateLibrary()
 		{
 			StringBuilder sb = new StringBuilder();
 
@@ -1507,7 +1507,7 @@ namespace UberASMTool
 
 			Console.WriteLine();
 
-			parseList();
+			ParseList();
 
 			Console.WriteLine();
 
@@ -1545,15 +1545,15 @@ namespace UberASMTool
 				Console.WriteLine("Cleaning up previous runs: ");
 			}
 
-			checkPreviousData();
+			CheckPreviousData();
 
-			buildLibrary();
-			generateLibrary();
+			BuildLibrary();
+			GenerateLibrary();
 
-			buildASM("overworld", 7, 1, "OW_init_table", "OW_asm_table", "OW_nmi_table", null);
-			buildASM("gamemode", 256, 2, "gamemode_init_table", "gamemode_main_table", "gamemode_nmi_table", null);
-			buildASM("level", 512, 0, "level_init_table", "level_asm_table", "level_nmi_table", "level_load_table");
-			buildOther();
+			BuildAsm("overworld", 7, 1, "OW_init_table", "OW_asm_table", "OW_nmi_table", null);
+			BuildAsm("gamemode", 256, 2, "gamemode_init_table", "gamemode_main_table", "gamemode_nmi_table", null);
+			BuildAsm("level", 512, 0, "level_init_table", "level_asm_table", "level_nmi_table", "level_load_table");
+			BuildOther();
 
 			if (error)
 			{
