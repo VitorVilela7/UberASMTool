@@ -1619,7 +1619,7 @@ namespace UberASMTool
 					
 					using (StreamWriter sw = new StreamWriter(restorePath, true))
 					{
-						sw.Write("UberASM Tool v1.1 ");
+						sw.Write("UberASM Tool v1.4 ");
 					}
 				}
 				catch(Exception ex)
