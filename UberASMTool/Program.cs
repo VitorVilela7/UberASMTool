@@ -1439,7 +1439,15 @@ namespace UberASMTool
 		private static void Pause()
 		{
 			Console.Write("Press any key to continue...");
-			Console.ReadKey(true);
+
+			try
+			{
+				Console.ReadKey(true);
+			}
+			catch
+			{
+
+			}
 		}
 
 		static void Main(string[] args)
