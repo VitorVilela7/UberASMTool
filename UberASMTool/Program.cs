@@ -1467,6 +1467,7 @@ namespace UberASMTool
 				Console.WriteLine("Usage: UberASMTool [code list] [ROM]");
 				Console.WriteLine("If ROM is not specified, UberASM Tool will search for the one in the code list.");
 				Console.WriteLine("If code list is not specified, UberASM Tool will try loading 'list.txt'.");
+				Console.WriteLine();
 				
 				if (args.Length > 2)
 				{
