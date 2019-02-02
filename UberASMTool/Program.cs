@@ -1577,6 +1577,13 @@ namespace UberASMTool
 			CheckPreviousData();
 
 			BuildLibrary();
+
+			if (error)
+			{
+				Pause();
+				return;
+			}
+
 			GenerateLibrary();
 
 			BuildAsm("overworld", 7, 1, "OW_init_table", "OW_asm_table", "OW_nmi_table", null);
