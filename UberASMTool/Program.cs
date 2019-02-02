@@ -1450,6 +1450,27 @@ namespace UberASMTool
 			}
 		}
 
+		private static void WriteRestoreComment()
+		{
+			// create LM restore information
+			try
+			{
+				string restorePath = Path.GetFullPath(romPath);
+				restorePath = restorePath.Substring(0, restorePath.LastIndexOf(Path.GetFileName(restorePath)));
+				restorePath += Path.GetFileNameWithoutExtension(romPath);
+				restorePath += ".extmod";
+
+				using (StreamWriter sw = new StreamWriter(restorePath, true))
+				{
+					sw.Write("UberASM Tool v1.4 ");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
+		}
+
 		static void Main(string[] args)
 		{
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
@@ -1609,23 +1630,7 @@ namespace UberASMTool
 				Console.WriteLine("Codes inserted successfully.");
 				rom.Save();
 
-				// create LM restore information
-				try
-				{
-					string restorePath = Path.GetFullPath(romPath);
-					restorePath = restorePath.Substring(0, restorePath.LastIndexOf(Path.GetFileName(restorePath)));
-					restorePath += Path.GetFileNameWithoutExtension(romPath);
-					restorePath += ".extmod";
-					
-					using (StreamWriter sw = new StreamWriter(restorePath, true))
-					{
-						sw.Write("UberASM Tool v1.4 ");
-					}
-				}
-				catch(Exception ex)
-				{
-					Console.WriteLine(ex.ToString());
-				}
+				WriteRestoreComment();
 			}
 			else
 			{
