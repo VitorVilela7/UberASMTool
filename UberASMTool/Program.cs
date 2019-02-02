@@ -11,6 +11,9 @@ namespace UberASMTool
 {
 	class Program
 	{
+		private static string mainDirectory;
+		private static string[] pathList;
+
 		private static ROM rom;
 		private static string romPath;
 
@@ -32,7 +35,7 @@ namespace UberASMTool
 		private static string globalFile;
 		private static string statusBarFile;
 		private static string macroLibraryFile;
-		private static string labelLibraryFile = "asm/library.asm";
+		private static string labelLibraryFile = "asm/work/library.asm";
 
 		private static int spriteCodeFreeRAM;
 
@@ -116,7 +119,7 @@ namespace UberASMTool
 			}
 
 			string baseFile = "asm/base/" + asmPath + ".asm";
-			string baseTempFile = "asm/" + asmPath + ".asm";
+			string baseTempFile = "asm/work/" + asmPath + ".asm";
 			string baseFolder = asmPath + "/";
 
 			string assemblyData = File.ReadAllText(baseFile);
@@ -521,7 +524,7 @@ namespace UberASMTool
 			{
 				output.AppendFormat("incsrc \"{1}{0}\" : ", labelLibraryFile, fix);
 			}
-			output.AppendFormat("incsrc \"/{1}{0}\" : ", macroLibraryFile, fix);
+			output.AppendFormat("incsrc \"{1}{0}\" : ", macroLibraryFile, fix);
 			output.Append("freecode cleaned : ");
 			output.AppendLine("print \"_startl \", pc");
 			output.AppendLine(input);
@@ -535,7 +538,7 @@ namespace UberASMTool
 			endPc = -1;
 			startPc = -1;
 
-			string realFile = baseFolder + "__temp.asm";
+			string realFile = mainDirectory + baseFolder + "__temp.asm";
 			string compileFile = originalFile;
 
 			for (int i = 0; i < 1000; ++i)
@@ -561,8 +564,8 @@ namespace UberASMTool
 					throw new Exception();
 				}
 			}
-
-			bool status = Asar.patch(realFile, ref rom.romData);
+			
+			bool status = Asar.patch(realFile, ref rom.romData, pathList);
 
 			for (int i = 0; i < 1000; ++i)
 			{
@@ -1005,7 +1008,7 @@ namespace UberASMTool
 			{
 				try
 				{
-					File.WriteAllText("asm/temp.asm", temp);
+					File.WriteAllText("asm/work/temp.asm", temp);
 					break;
 				}
 				catch
@@ -1025,7 +1028,7 @@ namespace UberASMTool
 				}
 			}
 
-			Asar.patch("asm/temp.asm", ref tempBuffer);
+			Asar.patch(mainDirectory + "asm/work/temp.asm", ref tempBuffer, pathList);
 			var ptr = GetPointers(false);
 			enableNmi[3] = ptr[2] != 0;
 
@@ -1046,7 +1049,7 @@ namespace UberASMTool
 
 			InsertTable(ref global, "prot_table", protList.ToString());
 
-			File.WriteAllText("asm/global.asm", global);
+			File.WriteAllText("asm/work/global.asm", global);
 
 			// prepare status file
 			current = File.ReadAllText(statusBarFile);
@@ -1056,17 +1059,17 @@ namespace UberASMTool
 			global = File.ReadAllText("asm/base/statusbar.asm");
 			global += current;
 
-			File.WriteAllText("asm/statusbar.asm", global);
+			File.WriteAllText("asm/work/statusbar.asm", global);
 
 			// copy sprites.asm
-			File.Copy("asm/base/sprites.asm", "asm/sprites.asm", true);
+			File.Copy("asm/base/sprites.asm", "asm/work/sprites.asm", true);
 
 			// prepare main file
 			StringBuilder mainFile = new StringBuilder();
 
-			mainFile.AppendFormat("incsrc \"/../{0}\"", labelLibraryFile);
+			mainFile.AppendFormat("incsrc \"{0}\"", labelLibraryFile);
 			mainFile.AppendLine();
-			mainFile.AppendFormat("incsrc \"/../{0}\"", macroLibraryFile);
+			mainFile.AppendFormat("incsrc \"../../{0}\"", macroLibraryFile);
 			mainFile.AppendLine();
 			mainFile.AppendFormat("!level_nmi\t= {0}\r\n", enableNmi[0] ? 1 : 0);
 			mainFile.AppendFormat("!overworld_nmi\t= {0}\r\n", enableNmi[1] ? 1 : 0);
@@ -1086,7 +1089,7 @@ namespace UberASMTool
 			mainFile.AppendLine();
 			mainFile.AppendLine("print freespaceuse");
 
-			File.WriteAllText("asm/main.asm", mainFile.ToString());
+			File.WriteAllText("asm/work/main.asm", mainFile.ToString());
 		}
 
 		private static void CheckPreviousData()
@@ -1258,8 +1261,8 @@ namespace UberASMTool
 			int fileCount = 0;
 
 			bool binaryMode = false;
-			var files = Directory.GetFiles("./library/", "*.asm", SearchOption.AllDirectories);
-			string fullPath = Path.GetFullPath("./library/");
+			var files = Directory.GetFiles("library/", "*.asm", SearchOption.AllDirectories);
+			string fullPath = Path.GetFullPath("library/");
 
 		repeat:
 			foreach (var asmFile in files)
@@ -1290,7 +1293,7 @@ namespace UberASMTool
 
 				if (!binaryMode)
 				{
-					if (!CompileFile(File.ReadAllText(asmFile), baseFolder, fileName, "./library", false, out start, out end))
+					if (!CompileFile(File.ReadAllText(asmFile), baseFolder, fileName, "library", false, out start, out end))
 					{
 						return;
 					}
@@ -1300,7 +1303,7 @@ namespace UberASMTool
 					string baseAssembly = labelLevel +
 						":\r\nincbin \"" + fileName + "\"\r\n";
 
-					if (!CompileFile(baseAssembly, baseFolder, fileName, "./library", false, out start, out end))
+					if (!CompileFile(baseAssembly, baseFolder, fileName, "library", false, out start, out end))
 					{
 						return;
 					}
@@ -1388,7 +1391,7 @@ namespace UberASMTool
 			if (!binaryMode)
 			{
 				binaryMode = true;
-				files = Directory.GetFiles("./library/", "*.*", SearchOption.AllDirectories)
+				files = Directory.GetFiles("library/", "*.*", SearchOption.AllDirectories)
 					.Where(x => !x.EndsWith(".asm", StringComparison.InvariantCultureIgnoreCase)).ToArray();
 				goto repeat;
 			}
@@ -1474,6 +1477,12 @@ namespace UberASMTool
 		static void Main(string[] args)
 		{
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+			mainDirectory = Environment.CurrentDirectory + "/";
+
+			pathList = new string[3];
+			pathList[0] = mainDirectory;
+			pathList[1] = mainDirectory + "asm/work/";
+			pathList[2] = mainDirectory + "asm/"; // this is for compatibility with old patches.
 
 			if (!Asar.init())
 			{
@@ -1602,7 +1611,7 @@ namespace UberASMTool
 				Console.WriteLine("Total files insert size: {0} (0x{0:X4}) bytes", totalInsertSize);
 			}
 
-			if (Asar.patch("asm/main.asm", ref rom.romData))
+			if (Asar.patch(mainDirectory + "asm/work/main.asm", ref rom.romData, pathList))
 			{
 				foreach (var warn in Asar.getwarnings())
 				{
