@@ -615,11 +615,11 @@ namespace UberASMTool
 
 			foreach (string print in prints)
 			{
-				string[] split = print.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-				string command = split[0].ToLower();
-				string value = String.Join(" ", split, 1, split.Length - 1);
+				string[] split = print.Trim().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+				string command = split.Length > 0 ? split[0].ToLower() : "";
+                string value = split.Length > 1 ? String.Join(" ", split, 1, split.Length - 1) : "";
 
-				if (endl)
+                if (endl)
 				{
 					Console.WriteLine("  {0}: error: unexpected print after end of the file print mark.", originalFile);
 					error = true;
