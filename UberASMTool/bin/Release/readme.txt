@@ -40,6 +40,15 @@ Features:
 -                         Version History                           -
 ---------------------------------------------------------------------
 
+Version 1.4:
+- Updated Asar to 1.71.
+- Fixed newer Asar printing weird path-related warnings.
+- Fixed a crash when stdin is either redirected or set to empty.
+- Fixed a crash when an .asm file prints either an empty or white-space
+only string.
+- Moved working .asm files to the dedicated ./asm/work instead of 
+./asm/.
+
 Version 1.3:
 - (randomdude999) Now uses Asar 1.61.
 
