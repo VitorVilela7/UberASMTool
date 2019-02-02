@@ -31,7 +31,7 @@ macro prot_file(file, label)
 		print "_prot ", pc
 		
 		<label>:
-			incbin "/../<file>"
+			incbin "../<file>"
 	pullpc
 endmacro
 
@@ -42,7 +42,7 @@ macro prot_source(file, label)
 		print "_prot ", pc
 		
 		<label>:
-			incsrc "/../<file>"
+			incsrc "../<file>"
 	pullpc
 endmacro
 
@@ -89,7 +89,7 @@ macro invoke_snes(addr)
 endmacro
 
 macro define_sprite_table(name, addr, addr_sa1)
-	if !SA1 == 0
+	if !sa1 == 0
 		!<name> = <addr>
 	else
 		!<name> = <addr_sa1>

@@ -4,7 +4,7 @@
 | |  | | '_ \ / _ \ '__/ /\ \  \___ \| |\/| |    | |/ _ \ / _ \| |
 | |__| | |_) |  __/ | / ____ \ ____) | |  | |    | | (_) | (_) | |
  \____/|_.__/ \___|_|/_/    \_\_____/|_|  |_|    |_|\___/ \___/|_|
-         VERSION 1.2                BY VITOR VILELA
+         VERSION 1.4                BY VITOR VILELA
 
 Thank you for downloading my tool. I hope it helps you though your
 SMW hacking journey.
@@ -39,6 +39,9 @@ Features:
 ---------------------------------------------------------------------
 -                         Version History                           -
 ---------------------------------------------------------------------
+
+Version 1.3:
+- (randomdude999) Now uses Asar 1.61.
 
 Version 1.2:
 - Added sprite defines with SA-1 support.
