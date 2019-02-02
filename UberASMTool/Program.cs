@@ -589,14 +589,14 @@ namespace UberASMTool
 					throw new Exception();
 				}
 			}
-
+			
 			foreach (var warn in Asar.getwarnings())
 			{
-				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(realFile, compileFile));
+				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(warn.Filename, compileFile));
 			}
 			foreach (var warn in Asar.geterrors())
 			{
-				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(realFile, compileFile));
+				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(warn.Filename, compileFile));
 			}
 
 			if (!status)
@@ -1652,11 +1652,11 @@ namespace UberASMTool
 			{
 				foreach (var warn in Asar.getwarnings())
 				{
-					Console.WriteLine(warn.Fullerrdata);
+					Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
 				}
 				foreach (var warn in Asar.geterrors())
 				{
-					Console.WriteLine(warn.Fullerrdata);
+					Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
 				}
 
 				Console.WriteLine("Some errors occured while applying main patch. Process aborted.");
