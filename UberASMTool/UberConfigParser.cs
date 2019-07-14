@@ -15,13 +15,13 @@ namespace UberASMTool
 
         private readonly List<Code> codeList = new List<Code>();
         private bool verbose = false;
-        private string romPath;
-        private string globalFile;
-        private string statusBarFile;
-        private string macroLibraryFile;
+        private string romPath = null;
+        private string globalFile = null;
+        private string statusBarFile = null;
+        private string macroLibraryFile = null;
         private readonly List<int>[][] list = new List<int>[3][] { new List<int>[512], new List<int>[7], new List<int>[256] };
-        private int spriteCodeFreeRAM;
-        private int spriteCodeFreeBWRAM;
+        private int spriteCodeFreeRAM = 0;
+        private int spriteCodeFreeBWRAM = 0;
 
         public string GetLogs()
         {
@@ -304,7 +304,7 @@ namespace UberASMTool
                 }
                 catch (Exception ex)
                 {
-                    parseLog.AppendLine(ex.Message);
+                    parseLog.AppendLine($"Line {i + 1} - {ex.Message}");
                     return false;
                 }
             }
@@ -344,11 +344,6 @@ namespace UberASMTool
             else
             {
                 currentList = list[type][level];
-            }
-
-            if (currentList.Count > 1)
-            {
-                throw new Exception("Number is already used.");
             }
 
             // TO DO: use hashes or anything better than path matching.
