@@ -12,9 +12,10 @@ namespace UberASMTool
         public string GlobalFile { get; set; }
         public string StatusBarFile { get; set; }
         public string MacroLibraryFile { get; set; }
-        public List<int>[][] FileASMList { get; set; }
+        public int[][][] FileASMList { get; set; }
+        public int[][] GlobalASMList { get; set; }
         public int SpriteCodeFreeRAM { get; set; }
         public int SpriteCodeFreeBWRAM { get; set; }
-        public List<Code> CodeList { get; set; }
+        public Code[] CodeList { get; set; }
     }
 }

@@ -106,7 +106,7 @@ namespace UberASMTool
 				nmiPointerList.Append("dl ");
 				loadPointerList.Append("dl ");
 
-				if (config.FileASMList[mode][i] == null || config.FileASMList[mode][i].Count == 0)
+				if (config.FileASMList[mode][i] == null || config.FileASMList[mode][i].Length == 0)
 				{
 					initPointerList.Append("null_pointer");
 					mainPointerList.Append("null_pointer");
@@ -116,7 +116,7 @@ namespace UberASMTool
 				else
 				{
                     // TO DO: support for multi codes must be done here.
-                    if (config.FileASMList[mode][i].Count > 1)
+                    if (config.FileASMList[mode][i].Length > 1)
                     {
                         Console.WriteLine("Error, too many ASM files.");
                         error = true;

@@ -20,6 +20,7 @@ namespace UberASMTool
         private string statusBarFile = null;
         private string macroLibraryFile = null;
         private readonly List<int>[][] list = new List<int>[3][] { new List<int>[512], new List<int>[7], new List<int>[256] };
+        private readonly List<int>[] globalList = new List<int>[3];
         private int spriteCodeFreeRAM = 0;
         private int spriteCodeFreeBWRAM = 0;
 
@@ -37,10 +38,11 @@ namespace UberASMTool
                 GlobalFile = globalFile,
                 StatusBarFile = statusBarFile,
                 MacroLibraryFile = macroLibraryFile,
-                FileASMList = list,
+                FileASMList = list.Select(c => c.Select(d => d.ToArray()).ToArray()).ToArray(),
+                GlobalASMList = globalList.Select(c => c.ToArray()).ToArray(),
                 SpriteCodeFreeRAM = spriteCodeFreeRAM,
                 SpriteCodeFreeBWRAM = spriteCodeFreeBWRAM,
-                CodeList = codeList,
+                CodeList = codeList.ToArray(),
             };
         }
 
@@ -141,14 +143,21 @@ namespace UberASMTool
 
                 int hexValue;
 
-                try
+                if (split[0] == "*")
                 {
-                    hexValue = Convert.ToUInt16(split[0], 16);
+                    hexValue = -1;
                 }
-                catch
+                else
                 {
-                    WriteLog("invalid hex number.", i);
-                    return false;
+                    try
+                    {
+                        hexValue = Convert.ToUInt16(split[0], 16);
+                    }
+                    catch
+                    {
+                        WriteLog("invalid hex number.", i);
+                        return false;
+                    }
                 }
 
                 switch (mode)
@@ -276,18 +285,31 @@ namespace UberASMTool
             }
         }
 
-
         private void AddLevelCode(string path, int level, int type)
         {
             List<int> currentList;
 
-            if (list[type][level] == null)
+            if (level == -1)
             {
-                currentList = list[type][level] = new List<int>();
+                if (globalList[type] == null)
+                {
+                    currentList = globalList[type] = new List<int>();
+                }
+                else
+                {
+                    currentList = globalList[type];
+                }
             }
             else
             {
-                currentList = list[type][level];
+                if (list[type][level] == null)
+                {
+                    currentList = list[type][level] = new List<int>();
+                }
+                else
+                {
+                    currentList = list[type][level];
+                }
             }
 
             // TO DO: use hashes or anything better than path matching.
