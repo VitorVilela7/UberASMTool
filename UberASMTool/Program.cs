@@ -9,35 +9,22 @@ using System.Threading;
 
 namespace UberASMTool
 {
-	class Program
-	{
-		private static string mainDirectory;
+    class Program
+    {
+        const string labelLibraryFile = "asm/work/library.asm";
+
+        private static string mainDirectory;
 		private static string[] pathList;
 
 		private static ROM rom;
-		private static string romPath;
-
-		private static bool verbose;
+        private static UberConfig config;
 
 		private static int totalInsertSize;
-
-		private static List<Code> codeList = new List<Code>();
-
-		private static List<int>[][] list = new List<int>[3][] { new List<int>[512], new List<int>[7], new List<int>[256] };
 
 		/// <summary>
 		/// level, overworld, gamemode, global.
 		/// </summary>
 		private static bool[] enableNmi = new bool[4];
-
-		private static string[] listFile;
-
-		private static string globalFile;
-		private static string statusBarFile;
-		private static string macroLibraryFile;
-		private static string labelLibraryFile = "asm/work/library.asm";
-
-		private static int spriteCodeFreeRAM;
 
 		private static bool error = false;
 
@@ -52,37 +39,6 @@ namespace UberASMTool
 		/// list of pointers that should be protected.
 		/// </summary>
 		private static List<int> protPointerList = new List<int>();
-
-		private static void AddLevelCode(string path, int level, int type)
-		{
-            List<int> currentList;
-
-            if (list[type][level] == null)
-            {
-                currentList = list[type][level] = new List<int>();
-            }
-            else
-            {
-                currentList = list[type][level];
-            }
-
-            if (currentList.Count > 1)
-			{
-				throw new Exception("Number is already used.");
-			}
-
-			// TO DO: use hashes or anything better than path matching.
-            int codeIdentifier = codeList.FindIndex(x => x.Path == path);
-
-            if (codeIdentifier == -1)
-			{
-                // add new ASM file
-                codeIdentifier = codeList.Count;
-                codeList.Add(new Code(path));
-			}
-
-            currentList.Add(codeIdentifier);
-		}
 
 		private static int[] GetPointers(bool load)
 		{
@@ -126,7 +82,7 @@ namespace UberASMTool
 
 			int total = 0;
 
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				Console.WriteLine("Building {0} ASM...", asmPath.ToUpper()[0] + asmPath.Substring(1));
 				Console.WriteLine();
@@ -150,7 +106,7 @@ namespace UberASMTool
 				nmiPointerList.Append("dl ");
 				loadPointerList.Append("dl ");
 
-				if (list[mode][i] == null || list[mode][i].Count == 0)
+				if (config.FileASMList[mode][i] == null || config.FileASMList[mode][i].Count == 0)
 				{
 					initPointerList.Append("null_pointer");
 					mainPointerList.Append("null_pointer");
@@ -160,7 +116,7 @@ namespace UberASMTool
 				else
 				{
                     // TO DO: support for multi codes must be done here.
-					var code = codeList[list[mode][i][0]];
+					var code = config.CodeList[config.FileASMList[mode][i][0]];
 					string levelContents;
 
 					try
@@ -174,7 +130,7 @@ namespace UberASMTool
 						return;
 					}
 
-                    if (verbose)
+                    if (config.VerboseMode)
                     {
                         Console.WriteLine("Processing binary file '{0}':", code.Path);
                     }
@@ -200,7 +156,7 @@ namespace UberASMTool
 							return;
 						}
 
-						if (verbose)
+						if (config.VerboseMode)
 						{
 							Console.WriteLine("  Inserted at ${0:X6} (PC: 0x{1:x})", startPc,
 								SNES.ToPCHeadered(startPc, rom.containsHeader));
@@ -296,7 +252,7 @@ namespace UberASMTool
 							combo |= 4;
 						}
 
-						if (verbose)
+						if (config.VerboseMode)
 						{
                             Console.Write($"  INIT: {PrintPointer(code.Init)}");
 
@@ -357,13 +313,13 @@ namespace UberASMTool
 							enableNmi[mode] = true;
 						}
 
-						if (verbose)
+						if (config.VerboseMode)
 						{
 							Console.WriteLine("  Insert size: zero bytes");
 						}
 					}
 
-					if (verbose)
+					if (config.VerboseMode)
 					{
 						Console.WriteLine();
 					}
@@ -412,7 +368,7 @@ namespace UberASMTool
 				}
 			}
 
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				if (total == 0)
 				{
@@ -470,7 +426,7 @@ namespace UberASMTool
 			{
 				output.AppendFormat("incsrc \"{1}{0}\" : ", labelLibraryFile, fix);
 			}
-			output.AppendFormat("incsrc \"{1}{0}\" : ", macroLibraryFile, fix);
+			output.AppendFormat("incsrc \"{1}{0}\" : ", config.MacroLibraryFile, fix);
 			output.Append("freecode cleaned : ");
 			output.AppendLine("print \"_startl \", pc");
 			output.AppendLine(input);
@@ -643,292 +599,6 @@ namespace UberASMTool
 			return true;
 		}
 
-		static void ParseList()
-		{
-			// 0 = level, 1 = ow, 2 = gamemode
-			int mode = -1;
-
-			for (int i = 0; i < listFile.Length; ++i)
-			{
-				string line = listFile[i].Trim();
-
-				if (line.StartsWith(";") || line == "")
-				{
-					continue;
-				}
-
-				string lw = line.ToLower();
-
-				switch (lw)
-				{
-					case "level:": mode = 0; continue;
-					case "overworld:": mode = 1; continue;
-					case "gamemode:": mode = 2; continue;
-				}
-
-				string[] split = line.Split(new string[] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
-
-				if (split.Length < 2)
-				{
-					Console.WriteLine("Line {0} - error: missing file name or command.", i + 1);
-					error = true;
-					return;
-				}
-
-				split[0] = split[0].ToLower();
-
-				string value = String.Join(" ", split, 1, split.Length - 1);
-
-				int index = value.IndexOf(';');
-
-				if (index != -1)
-				{
-					value = value.Substring(0, index).Trim();
-				}
-
-				switch (split[0])
-				{
-					case "verbose:":
-						value = value.ToLower();
-
-						if (value == "on")
-						{
-							if (!verbose)
-							{
-								Console.WriteLine("Verbose mode enabled.");
-							}
-							verbose = true;
-						}
-						else
-						{
-							if (verbose)
-							{
-								Console.WriteLine("Verbose mode disabled.");
-							}
-							verbose = false;
-						}
-						continue;
-
-					case "rom:":
-						if (romPath == null)
-						{
-							if (File.Exists(value))
-							{
-								romPath = value;
-								continue;
-							}
-							else
-							{
-								Console.WriteLine("Line {0} - error: ROM file does not exist.", i + 1);
-								error = true;
-								return;
-							}
-						}
-						else
-						{
-							Console.WriteLine("Line {0} - warning: ROM file already specified.", i + 1);
-							continue;
-						}
-
-					case "macrolib:":
-						if (macroLibraryFile == null)
-						{
-							if (File.Exists(value))
-							{
-								macroLibraryFile = value;
-								continue;
-							}
-							else
-							{
-								Console.WriteLine("Line {0} - error: file does not exist.", i + 1);
-								error = true;
-								return;
-							}
-						}
-						else
-						{
-							Console.WriteLine("Line {0} - warning: macro library file already defined.", i + 1);
-							continue;
-						}
-
-					case "global:":
-						if (globalFile == null)
-						{
-							if (File.Exists(value))
-							{
-								globalFile = value;
-								continue;
-							}
-							else
-							{
-								Console.WriteLine("Line {0} - error: file does not exist.", i + 1);
-								error = true;
-								return;
-							}
-						}
-						else
-						{
-							Console.WriteLine("Line {0} - warning: global file already defined.", i + 1);
-							continue;
-						}
-
-					case "statusbar:":
-						if (statusBarFile == null)
-						{
-							if (File.Exists(value))
-							{
-								statusBarFile = value;
-								continue;
-							}
-							else
-							{
-								Console.WriteLine("Line {0} - error: file does not exist.", i + 1);
-								error = true;
-								return;
-							}
-						}
-						else
-						{
-							Console.WriteLine("Line {0} - warning: status bar file already defined.", i + 1);
-							continue;
-						}
-
-					case "sprite:":
-						if (spriteCodeFreeRAM == 0)
-						{
-							if (value.StartsWith("$"))
-							{
-								value = value.Substring(1);
-							}
-							else if (value.StartsWith("0x"))
-							{
-								value = value.Substring(2);
-							}
-							try
-							{
-								spriteCodeFreeRAM = Convert.ToInt32(value, 16);
-								continue;
-							}
-							catch
-							{
-								Console.WriteLine("Line {0} - error: invalid sprite code free RAM address.", i + 1);
-								error = true;
-								return;
-							}
-						}
-						else
-						{
-							Console.WriteLine("Line {0} - warning: sprite code free RAM address already defined.", i + 1);
-							continue;
-						}
-				}
-
-				if (value.StartsWith("$"))
-				{
-					value = value.Substring(1);
-				}
-				else if (value.StartsWith("0x"))
-				{
-					value = value.Substring(2);
-				}
-
-				int hexValue;
-
-				try
-				{
-					hexValue = Convert.ToInt32(split[0], 16);
-				}
-				catch
-				{
-					Console.WriteLine("Line {0} - error: invalid number.", i + 1);
-					error = true;
-					return;
-				}
-
-				if (hexValue < 0)
-				{
-					Console.WriteLine("Line {0} - error: invalid number.", i + 1);
-					error = true;
-					return;
-				}
-
-				switch (mode)
-				{
-					case -1:
-						Console.WriteLine("Line {0} - error: unspecified code type (level/overworld/gamemode).", i + 1);
-						error = true;
-						return;
-
-					// level
-					case 0:
-						if (hexValue > 0x1FF)
-						{
-							Console.WriteLine("Line {0} - error: level out of range (000 - 1FF).", i + 1);
-							error = true;
-							return;
-						}
-						break;
-
-					// overworld
-					case 1:
-						if (hexValue > 6)
-						{
-							Console.WriteLine("Line {0} - error: overworld number out of range (0-6).", i + 1);
-							error = true;
-							return;
-						}
-						break;
-
-					// game mode
-					case 2:
-						if (hexValue > 0xFF)
-						{
-							Console.WriteLine("Line {0} - game mode number out of range (00 - FF).", i + 1);
-							error = true;
-							return;
-						}
-						break;
-				}
-
-				try
-				{
-					AddLevelCode(value, hexValue, mode);
-					continue;
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex.Message);
-					error = true;
-					return;
-				}
-			}
-
-			if (macroLibraryFile == null)
-			{
-				Console.WriteLine("Error: macro library file not defined.");
-				error = true;
-				return;
-			}
-			if (statusBarFile == null)
-			{
-				Console.WriteLine("Error: status bar file not defined.");
-				error = true;
-				return;
-			}
-			if (globalFile == null)
-			{
-				Console.WriteLine("Error: global file not defined.");
-				error = true;
-				return;
-			}
-			if (spriteCodeFreeRAM == 0)
-			{
-				Console.WriteLine("Error: sprite code free RAM address not defined.");
-				error = true;
-				return;
-			}
-		}
-
 		static void BuildOther()
 		{
 			if (error)
@@ -937,7 +607,7 @@ namespace UberASMTool
 			}
 
 			// prepare global file
-			string current = File.ReadAllText(globalFile);
+			string current = File.ReadAllText(config.GlobalFile);
 			byte[] tempBuffer = new byte[32768];
 
 			var temp = current.Insert(0, "lorom\r\norg $108000");
@@ -990,7 +660,7 @@ namespace UberASMTool
 			File.WriteAllText("asm/work/global.asm", global);
 
 			// prepare status file
-			current = File.ReadAllText(statusBarFile);
+			current = File.ReadAllText(config.StatusBarFile);
 			current = current.Insert(0, "\r\nnamespace status_bar\r\n");
 			current += "\r\nnamespace off\r\n";
 
@@ -1007,13 +677,13 @@ namespace UberASMTool
 
 			mainFile.AppendFormat("incsrc \"{0}\"", labelLibraryFile);
 			mainFile.AppendLine();
-			mainFile.AppendFormat("incsrc \"../../{0}\"", macroLibraryFile);
+			mainFile.AppendFormat("incsrc \"../../{0}\"", config.MacroLibraryFile);
 			mainFile.AppendLine();
 			mainFile.AppendFormat("!level_nmi\t= {0}\r\n", enableNmi[0] ? 1 : 0);
 			mainFile.AppendFormat("!overworld_nmi\t= {0}\r\n", enableNmi[1] ? 1 : 0);
 			mainFile.AppendFormat("!gamemode_nmi\t= {0}\r\n", enableNmi[2] ? 1 : 0);
 			mainFile.AppendFormat("!global_nmi\t= {0}\r\n\r\n", enableNmi[3] ? 1 : 0);
-			mainFile.AppendFormat("!sprite_RAM\t= ${0:X6}\r\n\r\n", spriteCodeFreeRAM);
+			mainFile.AppendFormat("!sprite_RAM\t= ${0:X6}\r\n\r\n", config.SpriteCodeFreeRAM);
 
 			foreach (int cleanPtr in freespacePointerList)
 			{
@@ -1043,7 +713,7 @@ namespace UberASMTool
 
 			int total = freespacePointerList.Count;
 
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				if (total == 1)
 				{
@@ -1074,7 +744,7 @@ namespace UberASMTool
 				{
 					freespacePointerList.Add(pointer);
 
-					if (verbose)
+					if (config.VerboseMode)
 					{
 						Console.WriteLine("${1:X6} (PC: 0x{0:x})", SNES.ToPCHeadered(pointer, rom.containsHeader), pointer);
 					}
@@ -1082,7 +752,7 @@ namespace UberASMTool
 				ptr -= 3;
 			}
 
-			if (verbose && freespacePointerList.Count - total > 0)
+			if (config.VerboseMode && freespacePointerList.Count - total > 0)
 			{
 				total = freespacePointerList.Count - total;
 
@@ -1180,7 +850,7 @@ namespace UberASMTool
 				{
 					freespacePointerList.Add(pointer);
 					
-					if (verbose)
+					if (config.VerboseMode)
 					{
 						Console.WriteLine("${1:X6} (PC: 0x{0:x})", SNES.ToPCHeadered(pointer, rom.containsHeader), pointer);
 					}
@@ -1190,7 +860,7 @@ namespace UberASMTool
 
 		private static void BuildLibrary()
 		{
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				Console.WriteLine("Building external library...");
 				Console.WriteLine();
@@ -1215,11 +885,11 @@ namespace UberASMTool
 					.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
 				int s = labelLevel.LastIndexOf('.');
 
-				if (verbose && binaryMode)
+				if (config.VerboseMode && binaryMode)
 				{
 					Console.WriteLine("Processing binary file '{0}':", fileName);
 				}
-				else if (verbose)
+				else if (config.VerboseMode)
 				{
 					Console.WriteLine("Processing file '{0}':", fileName);
 				}
@@ -1247,7 +917,7 @@ namespace UberASMTool
 					}
 				}
 
-				if (verbose)
+				if (config.VerboseMode)
 				{
 					Console.WriteLine("  Inserted at ${0:X6} (PC: 0x{1:x})",
 						start, SNES.ToPCHeadered(start, rom.containsHeader));
@@ -1289,7 +959,7 @@ namespace UberASMTool
 					}
 				}
 
-				if (verbose)
+				if (config.VerboseMode)
 				{
 					if (copyl == 1)
 					{
@@ -1319,7 +989,7 @@ namespace UberASMTool
 					return;
 				}
 
-				if (verbose)
+				if (config.VerboseMode)
 				{
 					Console.WriteLine();
 				}
@@ -1339,11 +1009,11 @@ namespace UberASMTool
 				return;
 			}
 
-			if (fileCount == 1 && verbose)
+			if (fileCount == 1 && config.VerboseMode)
 			{
 				Console.WriteLine("Processed one library file.");
 			}
-			else if (verbose)
+			else if (config.VerboseMode)
 			{
 				Console.WriteLine("Processed {0} library files.", fileCount);
 			}
@@ -1361,7 +1031,7 @@ namespace UberASMTool
 
 			File.WriteAllText(labelLibraryFile, sb.ToString());
 
-			if (labelList.Count == 0 || !verbose)
+			if (labelList.Count == 0 || !config.VerboseMode)
 			{
 				return;
 			}
@@ -1396,9 +1066,9 @@ namespace UberASMTool
 			// create LM restore information
 			try
 			{
-				string restorePath = Path.GetFullPath(romPath);
+				string restorePath = Path.GetFullPath(config.ROMPath);
 				restorePath = restorePath.Substring(0, restorePath.LastIndexOf(Path.GetFileName(restorePath)));
-				restorePath += Path.GetFileNameWithoutExtension(romPath);
+				restorePath += Path.GetFileNameWithoutExtension(config.ROMPath);
 				restorePath += ".extmod";
 
                 string fileContents = File.Exists(restorePath) ? File.ReadAllText(restorePath) : "";
@@ -1452,13 +1122,15 @@ namespace UberASMTool
 				}
 			}
 
+            UberConfigParser parser = new UberConfigParser();
+
 			if (args.Length == 2)
 			{
-				romPath = args[1];
+                parser.OverrideROM = args[1];
 
 				try
 				{
-					listFile = File.ReadAllLines(args[0]);
+                    parser.LoadListFile(args[0]);
 				}
 				catch (Exception ex)
 				{
@@ -1468,12 +1140,13 @@ namespace UberASMTool
 				}
 			}
 			else if (args.Length == 1)
-			{
-				romPath = null;
-				try
-				{
-					listFile = File.ReadAllLines(args[0]);
-				}
+            {
+                parser.OverrideROM = null;
+
+                try
+                {
+                    parser.LoadListFile(args[0]);
+                }
 				catch(Exception ex)
 				{
 					Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
@@ -1482,9 +1155,9 @@ namespace UberASMTool
 				}
 			}
 			else if (File.Exists("list.txt"))
-			{
-				listFile = File.ReadAllLines("list.txt");
-			}
+            {
+                parser.LoadListFile("list.txt");
+            }
 			else
 			{
 				Console.WriteLine("list.txt not found.");
@@ -1494,17 +1167,17 @@ namespace UberASMTool
 
 			Console.WriteLine();
 
-			ParseList();
+            if (!parser.ParseList())
+            {
+                Console.WriteLine("Could not parse list file!");
+                Console.WriteLine(parser.GetLogs());
+                Pause();
+                return;
+            }
 
-			Console.WriteLine();
+            config = parser.Build();
 
-			if (error)
-			{
-				Pause();
-				return;
-			}
-
-			if (romPath == null)
+			if (config.ROMPath == null)
 			{
 				Console.WriteLine("ROM file not given.");
 				Pause();
@@ -1513,7 +1186,7 @@ namespace UberASMTool
 
 			try
 			{
-				rom = new ROM(romPath);
+				rom = new ROM(config.ROMPath);
 				rom.Init();
 				SNES.DetectAddressing(rom.romType & 255);
 			}
@@ -1524,7 +1197,7 @@ namespace UberASMTool
 				return;
 			}
 
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				Console.WriteLine("Cleaning up previous runs: ");
 			}
@@ -1552,7 +1225,7 @@ namespace UberASMTool
 				return;
 			}
 
-			if (verbose)
+			if (config.VerboseMode)
 			{
 				Console.WriteLine("Total files insert size: {0} (0x{0:X4}) bytes", totalInsertSize);
 			}
@@ -1573,7 +1246,7 @@ namespace UberASMTool
 					{
 						Console.WriteLine(prints[i]);
 					}
-					else if (int.TryParse(prints[i], out int insertSize) && verbose)
+					else if (int.TryParse(prints[i], out int insertSize) && config.VerboseMode)
 					{
 						Console.WriteLine("Main patch insert size: {0} (0x{0:X4}) bytes", insertSize);
 						Console.WriteLine();
@@ -1583,7 +1256,7 @@ namespace UberASMTool
 					}
 				}
 
-				if (verbose && !printed)
+				if (config.VerboseMode && !printed)
 				{
 					Console.WriteLine();
 				}

@@ -88,10 +88,12 @@
   <ItemGroup>
     <Compile Include="asar.cs" />
     <Compile Include="Code.cs" />
+    <Compile Include="UberConfigParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ROM.cs" />
     <Compile Include="SNES.cs" />
+    <Compile Include="UberConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="asar.dll">
