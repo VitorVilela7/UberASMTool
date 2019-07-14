@@ -62,7 +62,7 @@ namespace UberASMTool
             {
                 string line = listFile[i].Trim();
 
-                if (line.StartsWith(";") || line == "")
+                if (line.StartsWith(";") || line.StartsWith("#") || line == "")
                 {
                     continue;
                 }
@@ -88,7 +88,7 @@ namespace UberASMTool
 
                 string value = String.Join(" ", split, 1, split.Length - 1);
 
-                int index = value.IndexOf(';');
+                int index = value.IndexOfAny(new char[] { ';', '#' });
 
                 if (index != -1)
                 {
