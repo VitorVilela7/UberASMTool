@@ -23,7 +23,7 @@ namespace UberASMTool
 
 		private static List<Code> codeList = new List<Code>();
 
-		private static int[][] list = new int[3][] { new int[512], new int[7], new int[256] };
+		private static List<int>[][] list = new List<int>[3][] { new List<int>[512], new List<int>[7], new List<int>[256] };
 
 		/// <summary>
 		/// level, overworld, gamemode, global.
@@ -55,25 +55,33 @@ namespace UberASMTool
 
 		private static void AddLevelCode(string path, int level, int type)
 		{
-			if (list[type][level] != 0)
+            List<int> currentList;
+
+            if (list[type][level] == null)
+            {
+                currentList = list[type][level] = new List<int>();
+            }
+            else
+            {
+                currentList = list[type][level];
+            }
+
+            if (currentList.Count > 1)
 			{
 				throw new Exception("Number is already used.");
 			}
 
 			// TO DO: use hashes or anything better than path matching.
-			int index = codeList.FindIndex(x => x.Path == path);
+            int codeIdentifier = codeList.FindIndex(x => x.Path == path);
 
-			if (index == -1)
+            if (codeIdentifier == -1)
 			{
-				// new ASM file
-				codeList.Add(new Code(path));
-				list[type][level] = codeList.Count;
+                // add new ASM file
+                codeIdentifier = codeList.Count;
+                codeList.Add(new Code(path));
 			}
-			else
-			{
-				// ASM file already stored somewhere.
-				list[type][level] = index + 1;
-			}
+
+            currentList.Add(codeIdentifier);
 		}
 
 		private static int[] GetPointers(bool load)
@@ -136,8 +144,7 @@ namespace UberASMTool
 				nmiPointerList.Append("dl ");
 				loadPointerList.Append("dl ");
 
-
-				if (list[mode][i] == 0)
+				if (list[mode][i] == null || list[mode][i].Count == 0)
 				{
 					initPointerList.Append("null_pointer");
 					mainPointerList.Append("null_pointer");
@@ -146,7 +153,8 @@ namespace UberASMTool
 				}
 				else
 				{
-					var code = codeList[list[mode][i] - 1];
+                    // TO DO: support for multi codes must be done here.
+					var code = codeList[list[mode][i][0]];
 					string levelContents;
 
 					try
