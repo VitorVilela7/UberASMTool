@@ -693,11 +693,7 @@ namespace UberASMTool
 
 						if (value == "on")
 						{
-							if (verbose)
-							{
-								Console.WriteLine("Line {0} - warning: verbose mode already enabled.", i + 1);
-							}
-							else
+							if (!verbose)
 							{
 								Console.WriteLine("Verbose mode enabled.");
 							}
@@ -708,10 +704,6 @@ namespace UberASMTool
 							if (verbose)
 							{
 								Console.WriteLine("Verbose mode disabled.");
-							}
-							else
-							{
-								Console.WriteLine("Line {0} - warning: verbose mode already disabled.", i + 1);
 							}
 							verbose = false;
 						}
