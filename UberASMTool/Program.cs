@@ -160,17 +160,14 @@ namespace UberASMTool
 						return;
 					}
 
-					int endPc;
-					int startPc;
+                    if (verbose)
+                    {
+                        Console.WriteLine("Processing binary file '{0}':", code.Path);
+                    }
 
-					if (verbose)
+                    if (!code.Inserted)
 					{
-						Console.WriteLine("Processing binary file '{0}':", code.Path);
-					}
-
-					if (!code.Inserted)
-					{
-						if (!CompileFile(levelContents, baseFolder, code.Path, baseFolder, true, out startPc, out endPc))
+						if (!CompileFile(levelContents, baseFolder, code.Path, baseFolder, true, out int startPc, out int endPc))
 						{
 							return;
 						}
@@ -1619,16 +1616,15 @@ namespace UberASMTool
 				}
 
 				var prints = Asar.getprints();
-				int insertSize;
-				bool printed = false;
+                bool printed = false;
 
-				for (int i = 0; i < prints.Length; ++i)
+                for (int i = 0; i < prints.Length; ++i)
 				{
 					if (i + 1 != prints.Length)
 					{
 						Console.WriteLine(prints[i]);
 					}
-					else if (int.TryParse(prints[i], out insertSize) && verbose)
+					else if (int.TryParse(prints[i], out int insertSize) && verbose)
 					{
 						Console.WriteLine("Main patch insert size: {0} (0x{0:X4}) bytes", insertSize);
 						Console.WriteLine();
