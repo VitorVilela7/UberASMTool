@@ -93,6 +93,17 @@ namespace UberASMTool
                     value = value.Substring(0, index).Trim();
                 }
 
+                string valueHex = value;
+
+                if (valueHex.StartsWith("$"))
+                {
+                    valueHex = valueHex.Substring(1);
+                }
+                else if (valueHex.StartsWith("0x"))
+                {
+                    valueHex = valueHex.Substring(2);
+                }
+
                 switch (split[0])
                 {
                     case "verbose:":
@@ -100,180 +111,57 @@ namespace UberASMTool
                         continue;
 
                     case "rom:":
-                        if (romPath == null)
-                        {
-                            if (File.Exists(value))
-                            {
-                                romPath = value;
-                                continue;
-                            }
-                            else
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: ROM file does not exist.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: ROM file already specified.");
-                            continue;
-                        }
+                        if (!ParseGlobalFileDeclaration(ref romPath, "ROM", value, i))
+                            return false;
+                        continue;
 
                     case "macrolib:":
-                        if (macroLibraryFile == null)
-                        {
-                            if (File.Exists(value))
-                            {
-                                macroLibraryFile = value;
-                                continue;
-                            }
-                            else
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: file does not exist.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: macro library file already defined.");
-                            continue;
-                        }
+                        if (!ParseGlobalFileDeclaration(ref macroLibraryFile, "Macro Library", value, i))
+                            return false;
+                        continue;
 
                     case "global:":
-                        if (globalFile == null)
-                        {
-                            if (File.Exists(value))
-                            {
-                                globalFile = value;
-                                continue;
-                            }
-                            else
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: file does not exist.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: global file already defined.");
-                            continue;
-                        }
+                        if (!ParseGlobalFileDeclaration(ref globalFile, "Global ASM", value, i)) return false;
+                        continue;
 
                     case "statusbar:":
-                        if (statusBarFile == null)
-                        {
-                            if (File.Exists(value))
-                            {
-                                statusBarFile = value;
-                                continue;
-                            }
-                            else
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: file does not exist.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: status bar file already defined.");
-                            continue;
-                        }
+                        if (!ParseGlobalFileDeclaration(ref statusBarFile, "Status Bar ASM", value, i)) return false;
+                        continue;
 
                     case "sprite-sa1:":
-                        if (spriteCodeFreeBWRAM == 0)
-                        {
-                            if (value.StartsWith("$"))
-                            {
-                                value = value.Substring(1);
-                            }
-                            else if (value.StartsWith("0x"))
-                            {
-                                value = value.Substring(2);
-                            }
-                            try
-                            {
-                                spriteCodeFreeBWRAM = Convert.ToInt32(value, 16);
-                                continue;
-                            }
-                            catch
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: invalid sprite code free SA-1 RAM address.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: sprite code free SA-1 RAM address already defined.");
-                            continue;
-                        }
+                        if (!ParseHexDefineDeclaration(ref spriteCodeFreeBWRAM,
+                            "sprite code free SA-1 RAM address", valueHex, i)) return false;
+                        continue;
 
                     case "sprite:":
-                        if (spriteCodeFreeRAM == 0)
-                        {
-                            if (value.StartsWith("$"))
-                            {
-                                value = value.Substring(1);
-                            }
-                            else if (value.StartsWith("0x"))
-                            {
-                                value = value.Substring(2);
-                            }
-                            try
-                            {
-                                spriteCodeFreeRAM = Convert.ToInt32(value, 16);
-                                continue;
-                            }
-                            catch
-                            {
-                                parseLog.AppendLine($"Line {i + 1} - error: invalid sprite code free RAM address.");
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            parseLog.AppendLine($"Line {i + 1} - warning: sprite code free RAM address already defined.");
-                            continue;
-                        }
-                }
-
-                if (value.StartsWith("$"))
-                {
-                    value = value.Substring(1);
-                }
-                else if (value.StartsWith("0x"))
-                {
-                    value = value.Substring(2);
+                        if (!ParseHexDefineDeclaration(ref spriteCodeFreeRAM,
+                            "sprite code free RAM address", valueHex, i)) return false;
+                        continue;
                 }
 
                 int hexValue;
 
                 try
                 {
-                    hexValue = Convert.ToInt32(split[0], 16);
+                    hexValue = Convert.ToUInt16(split[0], 16);
                 }
                 catch
                 {
-                    parseLog.AppendLine($"Line {i + 1} - error: invalid number.");
-                    return false;
-                }
-
-                if (hexValue < 0)
-                {
-                    parseLog.AppendLine($"Line {i + 1} - error: invalid number.");
+                    WriteLog("invalid hex number.", i);
                     return false;
                 }
 
                 switch (mode)
                 {
                     case -1:
-                        parseLog.AppendLine($"Line {i + 1} - error: unspecified code type (level/overworld/gamemode).");
+                        WriteLog("unspecified code type (level/overworld/gamemode).", i);
                         return false;
 
                     // level
                     case 0:
                         if (hexValue > 0x1FF)
                         {
-                            parseLog.AppendLine($"Line {i + 1} - error: level out of range (000 - 1FF).");
+                            WriteLog("level out of range (000 - 1FF).", i);
                             return false;
                         }
                         break;
@@ -282,7 +170,7 @@ namespace UberASMTool
                     case 1:
                         if (hexValue > 6)
                         {
-                            parseLog.AppendLine($"Line {i + 1} - error: overworld number out of range (0-6).");
+                            WriteLog("overworld number out of range (0-6).", i);
                             return false;
                         }
                         break;
@@ -291,7 +179,7 @@ namespace UberASMTool
                     case 2:
                         if (hexValue > 0xFF)
                         {
-                            parseLog.AppendLine($"Line {i + 1} - game mode number out of range (00 - FF).");
+                            WriteLog("game mode number out of range (00 - FF).", i);
                             return false;
                         }
                         break;
@@ -304,29 +192,90 @@ namespace UberASMTool
                 }
                 catch (Exception ex)
                 {
-                    parseLog.AppendLine($"Line {i + 1} - {ex.Message}");
+                    WriteLog(ex.Message, i);
                     return false;
                 }
             }
 
+            return ValidateDefinitions();
+        }
+
+        private bool ParseHexDefineDeclaration(ref int defineDestination, string defineType, string valueHex, int i)
+        {
+            if (defineDestination == 0)
+            {
+                try
+                {
+                    defineDestination = Convert.ToInt32(valueHex, 16);
+                    return true;
+                }
+                catch
+                {
+                    WriteLog($"invalid {defineType} hex number.", i);
+                    return false;
+                }
+            }
+            else
+            {
+                WriteLog($"{defineType} was already defined.", i, false);
+                return true;
+            }
+        }
+
+        private bool ParseGlobalFileDeclaration(ref string fileDefinition, string fileType, string value, int i)
+        {
+            if (fileDefinition == null)
+            {
+                if (File.Exists(value))
+                {
+                    fileDefinition = value;
+                    return true;
+                }
+                else
+                {
+                    WriteLog("file does not exist.", i);
+                    return false;
+                }
+            }
+            else
+            {
+                WriteLog($"{fileType} file was already defined.", i, false);
+                return true;
+            }
+        }
+
+        private bool ValidateDefinitions()
+        {
             if (macroLibraryFile == null)
             {
-                parseLog.AppendLine("Error: macro library file was not defined.");
+                WriteLog("macro library file was not defined.");
                 return false;
             }
             if (statusBarFile == null)
             {
-                parseLog.AppendLine("Error: status bar file was not defined.");
+                WriteLog("status bar file was not defined.");
                 return false;
             }
             if (globalFile == null)
             {
-                parseLog.AppendLine("Error: global file was not defined.");
+                WriteLog("global file was not defined.");
                 return false;
             }
-
             return true;
         }
+
+        private void WriteLog(string description, int line = -1, bool error = true)
+        {
+            if (line == -1)
+            {
+                parseLog.AppendLine($"{(error ? "Error" : "Warning")}: {description}");
+            }
+            else
+            {
+                parseLog.AppendLine($"{(error ? "Error" : "Warning")}: line {line + 1} - {description}");
+            }
+        }
+
 
         private void AddLevelCode(string path, int level, int type)
         {
