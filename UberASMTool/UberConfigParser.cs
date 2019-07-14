@@ -21,6 +21,7 @@ namespace UberASMTool
         private string macroLibraryFile;
         private readonly List<int>[][] list = new List<int>[3][] { new List<int>[512], new List<int>[7], new List<int>[256] };
         private int spriteCodeFreeRAM;
+        private int spriteCodeFreeBWRAM;
 
         public string GetLogs()
         {
@@ -38,6 +39,7 @@ namespace UberASMTool
                 MacroLibraryFile = macroLibraryFile,
                 FileASMList = list,
                 SpriteCodeFreeRAM = spriteCodeFreeRAM,
+                SpriteCodeFreeBWRAM = spriteCodeFreeBWRAM,
                 CodeList = codeList,
             };
         }
@@ -174,6 +176,34 @@ namespace UberASMTool
                         else
                         {
                             parseLog.AppendLine($"Line {i + 1} - warning: status bar file already defined.");
+                            continue;
+                        }
+
+                    case "sprite-sa1:":
+                        if (spriteCodeFreeBWRAM == 0)
+                        {
+                            if (value.StartsWith("$"))
+                            {
+                                value = value.Substring(1);
+                            }
+                            else if (value.StartsWith("0x"))
+                            {
+                                value = value.Substring(2);
+                            }
+                            try
+                            {
+                                spriteCodeFreeBWRAM = Convert.ToInt32(value, 16);
+                                continue;
+                            }
+                            catch
+                            {
+                                parseLog.AppendLine($"Line {i + 1} - error: invalid sprite code free SA-1 RAM address.");
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            parseLog.AppendLine($"Line {i + 1} - warning: sprite code free SA-1 RAM address already defined.");
                             continue;
                         }
 

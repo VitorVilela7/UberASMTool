@@ -683,7 +683,7 @@ namespace UberASMTool
 			mainFile.AppendFormat("!overworld_nmi\t= {0}\r\n", enableNmi[1] ? 1 : 0);
 			mainFile.AppendFormat("!gamemode_nmi\t= {0}\r\n", enableNmi[2] ? 1 : 0);
 			mainFile.AppendFormat("!global_nmi\t= {0}\r\n\r\n", enableNmi[3] ? 1 : 0);
-			mainFile.AppendFormat("!sprite_RAM\t= ${0:X6}\r\n\r\n", config.SpriteCodeFreeRAM);
+			mainFile.AppendFormat("!sprite_RAM\t= ${0:X6}\r\n\r\n", GetSpriteRAMValue());
 
 			foreach (int cleanPtr in freespacePointerList)
 			{
@@ -700,7 +700,13 @@ namespace UberASMTool
 			File.WriteAllText("asm/work/main.asm", mainFile.ToString());
 		}
 
-		private static void CheckPreviousData()
+        private static int GetSpriteRAMValue()
+        {
+            return rom.sa1 && config.SpriteCodeFreeBWRAM != 0
+                ? config.SpriteCodeFreeBWRAM : config.SpriteCodeFreeRAM;
+        }
+
+        private static void CheckPreviousData()
 		{
 			//gamemode - $009322+1
 			//levelASM - $00A242+1
