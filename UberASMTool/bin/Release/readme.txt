@@ -407,7 +407,7 @@ I'd like to thank:
 -                             Contact                               -
 ---------------------------------------------------------------------
 
-You can contact make though the following links:
+You can contact me though the following links:
 
 * My Github profile: https://github.com/VitorVilela7
 * My Twitter profile: https://twitter.com/HackerVilela
