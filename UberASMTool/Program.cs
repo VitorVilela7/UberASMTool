@@ -116,6 +116,13 @@ namespace UberASMTool
 				else
 				{
                     // TO DO: support for multi codes must be done here.
+                    if (config.FileASMList[mode][i].Count > 1)
+                    {
+                        Console.WriteLine("Error, too many ASM files.");
+                        error = true;
+                        return;
+                    }
+
 					var code = config.CodeList[config.FileASMList[mode][i][0]];
 					string levelContents;
 
