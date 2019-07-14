@@ -4,7 +4,7 @@
 | |  | | '_ \ / _ \ '__/ /\ \  \___ \| |\/| |    | |/ _ \ / _ \| |
 | |__| | |_) |  __/ | / ____ \ ____) | |  | |    | | (_) | (_) | |
  \____/|_.__/ \___|_|/_/    \_\_____/|_|  |_|    |_|\___/ \___/|_|
-         VERSION 1.4                BY VITOR VILELA
+         VERSION 1.5                BY VITOR VILELA
 
 Thank you for downloading my tool. I hope it helps you though your
 SMW hacking journey.
@@ -407,8 +407,9 @@ I'd like to thank:
 -                             Contact                               -
 ---------------------------------------------------------------------
 
-If you need any help regarding this tool, feel free to ask the SMW
-Central forums, usually they answer fast enough for your needs.
+You can contact make though the following links:
 
-However if you want to contact me, then feel free to send me a PM to
-"Vitor Vilela" on SMW Central (user id = 8251).
+* My Github profile: https://github.com/VitorVilela7
+* My Twitter profile: https://twitter.com/HackerVilela
+* My personal blog: https://vilela.sneslab.net/
+
