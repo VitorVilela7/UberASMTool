@@ -22,6 +22,7 @@ namespace UberASMTool
         public bool containsHeader;
         public string romLocation;
         public int romSize;
+        public bool sa1;
 
         public ROM(string filename)
         {
@@ -71,10 +72,10 @@ namespace UberASMTool
                 Array.Copy(romData, 512, dupe, 0, romSize);
                 romData = null;
                 romData = dupe;
-                dupe = null;
             }
 
             canOperate = true;
+            sa1 = (romType & 255) == 0x23;
         }
 
         public void Close()
@@ -98,7 +99,6 @@ namespace UberASMTool
 			}
 
             File.WriteAllBytes(romLocation, final);
-            final = null;
         }
 
         public bool WriteBlock(byte[] block, int position)
