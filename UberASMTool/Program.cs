@@ -709,8 +709,16 @@ namespace UberASMTool
 
         private static int GetSpriteRAMValue()
         {
-            return rom.sa1 && config.SpriteCodeFreeBWRAM != 0
+            int result = rom.sa1 && config.SpriteCodeFreeBWRAM != 0
                 ? config.SpriteCodeFreeBWRAM : config.SpriteCodeFreeRAM;
+
+            if (result == 0)
+            {
+                Console.WriteLine("Error: sprite code free RAM address was not defined.");
+                error = true;
+            }
+
+            return result;
         }
 
         private static void CheckPreviousData()

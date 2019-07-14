@@ -324,11 +324,6 @@ namespace UberASMTool
                 parseLog.AppendLine("Error: global file was not defined.");
                 return false;
             }
-            if (spriteCodeFreeRAM == 0)
-            {
-                parseLog.AppendLine("Error: sprite code free RAM address was not defined.");
-                return false;
-            }
 
             return true;
         }
