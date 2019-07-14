@@ -1409,10 +1409,18 @@ namespace UberASMTool
 				restorePath += Path.GetFileNameWithoutExtension(romPath);
 				restorePath += ".extmod";
 
-				using (StreamWriter sw = new StreamWriter(restorePath, true))
-				{
-					sw.Write("UberASM Tool v1.4 ");
-				}
+                string fileContents = File.Exists(restorePath) ? File.ReadAllText(restorePath) : "";
+                string appendText = "UberASM Tool v1.5";
+
+                if (!fileContents.EndsWith(appendText))
+                {
+                    if (fileContents.Length > 0)
+                    {
+                        fileContents = fileContents.TrimEnd() + " ";
+                    }
+
+                    File.WriteAllText(restorePath, fileContents + appendText);
+                }
 			}
 			catch (Exception ex)
 			{
