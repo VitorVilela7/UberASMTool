@@ -450,7 +450,7 @@ namespace UberASMTool
 				{
 					if (i == 999)
 					{
-						Console.WriteLine("  Error: access denied while creating base temp file.", baseTempFile);
+						Console.WriteLine("  Error: access denied while creating base temp file.");
 						error = true;
 						throw;
 					}
@@ -471,7 +471,7 @@ namespace UberASMTool
 				}
 				else if (total == 1)
 				{
-					Console.WriteLine("Total one file processed.", total);
+					Console.WriteLine("Total one file processed.");
 					Console.WriteLine();
 				}
 				else
@@ -1352,7 +1352,7 @@ namespace UberASMTool
 				{
 					if (copyl == 1)
 					{
-						Console.WriteLine("  Processed one label.", copyl);
+						Console.WriteLine("  Processed one label.");
 					}
 					else
 					{
@@ -1426,7 +1426,7 @@ namespace UberASMTool
 			}
 			else if (labelList.Count == 1)
 			{
-				Console.WriteLine("Total one library label generated.", labelList.Count);
+				Console.WriteLine("Total one library label generated.");
 			}
 			else
 			{
