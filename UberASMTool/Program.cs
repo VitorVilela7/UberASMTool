@@ -87,28 +87,34 @@ namespace UberASMTool
 		private static int[] GetPointers(bool load)
 		{
 			var labels = Asar.getlabels();
-			int[] output = new int[4];
+            bool set = false;
+			int[] output = new int[4] { -1, -1, -1, -1 };
 
 			foreach (var label in labels)
 			{
 				switch (label.Name.ToLower())
 				{
-					case "init": output[0] = label.Location; break;
-					case "main": output[1] = label.Location; break;
-					case "nmi": output[2] = label.Location; break;
-					case "load": if (load) output[3] = label.Location; break;
+					case "init": output[0] = label.Location; set = true; break;
+					case "main": output[1] = label.Location; set = true; break;
+					case "nmi": output[2] = label.Location; set = true; break;
+					case "load": if (load) { output[3] = label.Location; set = true; } break;
 				}
 			}
 
-			if ((output[0] | output[1] | output[2] | output[3]) == 0)
-			{
-				return null;
-			}
-			else
-			{
-				return output;
-			}
+            return set ? output : null;
 		}
+
+        private static string PrintPointer(int pointer)
+        {
+            if (pointer == -1)
+            {
+                return "NULL   ";
+            }
+            else
+            {
+                return $"${pointer:X6}";
+            }
+        }
 
 		private static void BuildAsm(string asmPath, int maxItems, int mode,
 			string initTable, string mainTable, string nmiTable, string loadTable)
@@ -221,7 +227,7 @@ namespace UberASMTool
 
 						int combo = 0;
 
-						if (pointers[0] == 0)
+						if (pointers[0] == -1)
 						{
 							initPointerList.Append("null_pointer");
 						}
@@ -238,7 +244,7 @@ namespace UberASMTool
 							combo |= 1;
 						}
 
-						if (pointers[1] == 0)
+						if (pointers[1] == -1)
 						{
 							mainPointerList.Append("null_pointer");
 						}
@@ -255,7 +261,7 @@ namespace UberASMTool
 							combo |= 2;
 						}
 
-						if (pointers[3] == 0)
+						if (pointers[3] == -1)
 						{
 							loadPointerList.Append("null_pointer");
 						}
@@ -272,7 +278,7 @@ namespace UberASMTool
 							combo |= 8;
 						}
 
-						if (pointers[2] == 0)
+						if (pointers[2] == -1)
 						{
 							nmiPointerList.Append("null_pointer");
 						}
@@ -292,87 +298,22 @@ namespace UberASMTool
 
 						if (verbose)
 						{
-							switch (combo)
-							{
-								case 1: // INIT only
-									Console.WriteLine("  INIT: ${0:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
+                            Console.Write($"  INIT: {PrintPointer(code.Init)}");
 
-								case 2: // MAIN only
-									Console.WriteLine("  INIT: NULL    - MAIN: ${1:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
+                            if (combo >= 2)
+                            {
+                                Console.Write($" - MAIN: {PrintPointer(code.Main)}");
+                            }
+                            if (combo >= 4)
+                            {
+                                Console.Write($" - NMI: {PrintPointer(code.Nmi)}");
+                            }
+                            if (combo >= 8)
+                            {
+                                Console.Write($" - LOAD: {PrintPointer(code.Load)}");
+                            }
 
-								case 3: // INIT+MAIN
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: ${1:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
-
-								case 4: // NMI only
-									Console.WriteLine("  INIT: NULL    - MAIN: NULL    - NMI: ${2:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
-
-								case 5: // NMI+INIT
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: NULL    - NMI: ${2:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
-
-								case 6: // NMI+MAIN
-									Console.WriteLine("  INIT: NULL    - MAIN: ${1:X6} - NMI: ${2:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
-
-								case 7: // all
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: ${1:X6} - NMI: ${2:X6}",
-										pointers[0], pointers[1], pointers[2]);
-									break;
-
-								// LOAD labels
-
-								case 8:
-									Console.WriteLine("  INIT: NULL    - MAIN: NULL    - NMI: NULL    - LOAD: ${0:X6}",
-										pointers[3]);
-									break;
-
-								case 9: // INIT only
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: NULL    - NMI: NULL    - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 10: // MAIN only
-									Console.WriteLine("  INIT: NULL    - MAIN: ${1:X6} - NMI: NULL    - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 11: // INIT+MAIN
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: ${1:X6} - NMI: NULL    - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 12: // NMI only
-									Console.WriteLine("  INIT: NULL    - MAIN: NULL    - NMI: ${2:X6} - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 13: // NMI+INIT
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: NULL    - NMI: ${2:X6} - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 14: // NMI+MAIN
-									Console.WriteLine("  INIT: NULL    - MAIN: ${1:X6} - NMI: ${2:X6} - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-								case 15: // all
-									Console.WriteLine("  INIT: ${0:X6} - MAIN: ${1:X6} - NMI: ${2:X6} - LOAD: ${3:X6}",
-										pointers[0], pointers[1], pointers[2], pointers[3]);
-									break;
-
-
-							}
+                            Console.WriteLine();
 						}
 
 						code.Inserted = true;
@@ -1035,7 +976,7 @@ namespace UberASMTool
 
 			Asar.patch(mainDirectory + "asm/work/temp.asm", ref tempBuffer, pathList);
 			var ptr = GetPointers(false);
-			enableNmi[3] = ptr[2] != 0;
+			enableNmi[3] = ptr[2] != -1;
 
 			current = current.Insert(0, "\r\nnamespace global\r\n");
 			current += "\r\nnamespace off\r\n";
