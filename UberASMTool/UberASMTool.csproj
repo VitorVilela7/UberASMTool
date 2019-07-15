@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="asar.cs" />
     <Compile Include="Code.cs" />
+    <Compile Include="DataCollector.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="UberConfigParser.cs" />
     <Compile Include="Program.cs" />

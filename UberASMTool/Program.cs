@@ -27,12 +27,6 @@ namespace UberASMTool
 		private static bool[] enableNmi = new bool[4];
 
 		private static bool error = false;
-
-		/// <summary>
-		/// list of pointers that must be manually removed later.
-		/// </summary>
-		private static List<int> freespacePointerList = new List<int>();
-
 		private static List<Asarlabel> labelList = new List<Asarlabel>();
 
 		/// <summary>
@@ -539,6 +533,51 @@ namespace UberASMTool
 			return true;
 		}
 
+        static void CleanPreviousRun()
+        {
+            if (config.VerboseMode)
+            {
+                Console.WriteLine("Cleaning previous run...");
+            }
+
+            DataCollector collector = new DataCollector(rom);
+            collector.CheckPreviousUberData();
+
+            var cleanFile = new StringBuilder();
+            var result = collector.GetCollectedPointers();
+
+            foreach (int cleanPtr in result)
+            {
+                cleanFile.AppendLine($"autoclean ${cleanPtr:X6}");
+            }
+
+            File.WriteAllText("asm/work/clean.asm", cleanFile.ToString());
+
+            error = !Asar.patch(mainDirectory + "asm/work/clean.asm", ref rom.romData, pathList);
+
+            foreach (var warn in Asar.getwarnings())
+            {
+                Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
+            }
+            foreach (var warn in Asar.geterrors())
+            {
+                Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
+            }
+
+            if (error)
+            {
+                Console.WriteLine("Some errors occured while applying cleaning the ROM. Process aborted.");
+                Console.WriteLine("Your ROM wasn't modified.");
+                return;
+            }
+
+            // TO DO: freespace leak analysis.
+
+            if (config.VerboseMode)
+            {
+                Console.WriteLine($"Cleaned {result.Length} label(s).");
+            }
+        }
 
 		static void BuildOther()
         {
@@ -610,11 +649,6 @@ namespace UberASMTool
 			mainFile.AppendFormat("!global_nmi\t= {0}\r\n\r\n", enableNmi[3] ? 1 : 0);
 			mainFile.AppendFormat("!sprite_RAM\t= ${0:X6}\r\n\r\n", GetSpriteRAMValue());
 
-			foreach (int cleanPtr in freespacePointerList)
-			{
-				mainFile.AppendFormat("autoclean ${0:X6}\r\n", cleanPtr);
-			}
-
 			mainFile.AppendLine();
 
 			mainFile.Append(File.ReadAllText("asm/base/main.asm"));
@@ -638,164 +672,6 @@ namespace UberASMTool
 
             return result;
         }
-
-        private static void CheckPreviousData()
-		{
-			//gamemode - $009322+1
-			//levelASM - $00A242+1
-			//overworld - $00A1C3+1
-			//global - $00804E+1
-
-			CleanPointerTable(0x1323, 256, false);
-			CleanPointerTable(0x2243, 512, true);
-			CleanPointerTable(0x21C4, 7, false);
-
-			int total = freespacePointerList.Count;
-
-			if (config.VerboseMode)
-			{
-				if (total == 1)
-				{
-					Console.WriteLine("One main pointer cleaned.");
-				}
-				else
-				{
-					Console.WriteLine("{0} main pointers cleaned.", total);
-				}
-
-				Console.WriteLine();
-			}
-
-			// clear external pointer table
-			int ptr = CheckPointer(0x4F);
-
-			if (ptr == -1)
-			{
-				return;
-			}
-
-			ptr -= 3;
-
-			while (!CheckForUberSignature(ptr - 1))
-			{
-				int pointer = rom.Read24(ptr);
-				if (!freespacePointerList.Contains(pointer))
-				{
-					freespacePointerList.Add(pointer);
-
-					if (config.VerboseMode)
-					{
-						Console.WriteLine("${1:X6} (PC: 0x{0:x})", SNES.ToPCHeadered(pointer, rom.containsHeader), pointer);
-					}
-				}
-				ptr -= 3;
-			}
-
-			if (config.VerboseMode && freespacePointerList.Count - total > 0)
-			{
-				total = freespacePointerList.Count - total;
-
-				if (total == 1)
-				{
-					Console.WriteLine("One external pointer cleaned.");
-				}
-				else
-				{
-					Console.WriteLine("{0} external pointers cleaned.", total);
-				}
-
-				Console.WriteLine();
-			}
-		}
-
-		private static bool CheckForUberSignature(int ptr)
-		{
-			var str = rom.ReadBlock(ptr, 4);
-			return (str[0] == (byte)'u' && str[1] == (byte)'b' && str[2] == (byte)'e' && str[3] == (byte)'r');
-		}
-
-		private static int CheckPointer(int offset)
-		{
-			int ptr = SNES.ToPC(rom.Read24(offset));
-			
-			if (ptr < 0x80000 || ptr > rom.romSize)
-			{
-				// does not seem to be a valid pointer.
-				return -1;
-			}
-
-			ptr -= 4;
-
-			var str = rom.ReadBlock(ptr, 4);
-			if (!(str[0] == (byte)'t' && str[1] == (byte)'o' && str[2] == (byte)'o' && str[3] == (byte)'l'))
-			{
-				// okay, does not seem legit.
-				return -1;
-			}
-
-			return ptr;
-		}
-
-		private static void CleanPointerTable(int offset, int pointerCount, bool ext)
-		{
-			int ptr = CheckPointer(offset);
-
-			if (ptr == -1)
-			{
-				return;
-			}
-			
-			ptr -= pointerCount * 6;
-
-			bool nmi = false;
-			bool load = false;
-
-		scan:
-			if (!CheckForUberSignature(ptr - 4))
-			{
-				if (load)
-				{
-					// does not seem legit.
-					return;
-				}
-				else if (nmi)
-				{
-					if (ext)
-					{
-						load = true;
-						ptr -= pointerCount * 3;
-						goto scan;
-					}
-					else
-					{
-						//does not seem legit..
-						return;
-					}
-				}
-				else
-				{
-					nmi = true;
-					ptr -= pointerCount * 3;
-					goto scan;
-				}
-			}
-
-			int total = pointerCount * (load ? 4 : (nmi ? 3 : 2));
-
-			for (int i = 0; i < total; ++i, ptr += 3)
-			{
-				int pointer = rom.Read24(ptr);
-				if (!freespacePointerList.Contains(pointer))
-				{
-					freespacePointerList.Add(pointer);
-					
-					if (config.VerboseMode)
-					{
-						Console.WriteLine("${1:X6} (PC: 0x{0:x})", SNES.ToPCHeadered(pointer, rom.containsHeader), pointer);
-					}
-				}
-			}
-		}
 
 		private static void BuildLibrary()
 		{
@@ -1136,14 +1012,15 @@ namespace UberASMTool
 				return;
 			}
 
-			if (config.VerboseMode)
-			{
-				Console.WriteLine("Cleaning up previous runs: ");
-			}
+            CleanPreviousRun();
 
-			CheckPreviousData();
+            if (error)
+            {
+                Pause();
+                return;
+            }
 
-			BuildLibrary();
+            BuildLibrary();
 
 			if (error)
 			{
