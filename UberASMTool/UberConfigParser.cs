@@ -248,7 +248,7 @@ namespace UberASMTool
             }
             else
             {
-                WriteLog($"{fileType} file was already defined.", i, false);
+                WriteLog($"{fileType} file was already defined, new define ignored.", i, false);
                 return true;
             }
         }
