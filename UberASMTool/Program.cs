@@ -133,7 +133,7 @@ namespace UberASMTool
 
                     if (config.VerboseMode)
                     {
-                        Console.WriteLine("Processing binary file '{0}':", code.Path);
+                        Console.WriteLine("Processing file '{0}':", code.Path);
                     }
 
                     if (!code.Inserted)
