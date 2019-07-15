@@ -341,6 +341,7 @@ namespace UberASMTool
 
 			InsertTable(ref assemblyData, initTable, initPointerList.ToString());
 			InsertTable(ref assemblyData, mainTable, mainPointerList.ToString());
+
 			if (loadTable != null)
 			{
 				InsertTable(ref assemblyData, loadTable, loadPointerList.ToString());
@@ -391,25 +392,9 @@ namespace UberASMTool
 			asmFile = asmFile.Insert(index, "\r\n" + table);
 		}
 
-		private static int DirectoryDepth(string fileName, string directoryBase)
-		{
-			string path1 = Path.GetFullPath(directoryBase);
-			string path2 = Path.GetFullPath(fileName);
-			char[] separators = new[] { Path.PathSeparator, Path.AltDirectorySeparatorChar,
-				Path.DirectorySeparatorChar, Path.VolumeSeparatorChar };
-
-			return path2.Substring(path1.Length).Split(separators, StringSplitOptions.RemoveEmptyEntries).Length;
-		}
-
-		private static string FixPath(string fileName, string directoryBase)
-		{
-			int depth = DirectoryDepth(fileName, directoryBase);
-			return String.Join("", Enumerable.Repeat("../", depth));
-		}
-
 		private static string GenerateBasefile(string input, bool library, string fileName, string directoryBase)
 		{
-			string fix = FixPath(fileName, directoryBase);
+			string fix = FileUtils.FixPath(fileName, directoryBase);
 			StringBuilder output = new StringBuilder();
 
 			if (library)

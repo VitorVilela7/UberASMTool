@@ -52,5 +52,21 @@ namespace UberASMTool
 
             return false;
         }
+
+        public static int DirectoryDepth(string fileName, string directoryBase)
+        {
+            string path1 = Path.GetFullPath(directoryBase);
+            string path2 = Path.GetFullPath(fileName);
+            char[] separators = new[] { Path.PathSeparator, Path.AltDirectorySeparatorChar,
+                Path.DirectorySeparatorChar, Path.VolumeSeparatorChar };
+
+            return path2.Substring(path1.Length).Split(separators, StringSplitOptions.RemoveEmptyEntries).Length;
+        }
+
+        public static string FixPath(string fileName, string directoryBase)
+        {
+            int depth = DirectoryDepth(fileName, directoryBase);
+            return String.Join("", Enumerable.Repeat("../", depth));
+        }
     }
 }
