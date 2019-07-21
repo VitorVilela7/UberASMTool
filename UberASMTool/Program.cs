@@ -403,6 +403,33 @@ namespace UberASMTool
 			return output.ToString();
 		}
 
+        private static void PrintWarningsAndErrors(string originalFile)
+        {
+            foreach (var warn in Asar.getwarnings())
+            {
+                string error = warn.Fullerrdata;
+
+                if (originalFile != null && !String.IsNullOrEmpty(warn.Filename))
+                {
+                    error = error.Replace(warn.Filename, originalFile);
+                }
+
+                Console.WriteLine($"  {error}");
+            }
+
+            foreach (var warn in Asar.geterrors())
+            {
+                string error = warn.Fullerrdata;
+
+                if (originalFile != null && !String.IsNullOrEmpty(warn.Filename))
+                {
+                    error = error.Replace(warn.Filename, originalFile);
+                }
+
+                Console.WriteLine($"  {error}");
+            }
+        }
+
 		private static bool CompileFile(string data, string baseFolder, string originalFile, string originFolder,
 			bool library, out int startPc, out int endPc)
 		{
@@ -425,15 +452,8 @@ namespace UberASMTool
             {
                 Console.WriteLine($"  Warning: could not delete temporary file {realFile}.");
             }
-			
-			foreach (var warn in Asar.getwarnings())
-			{
-				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(warn.Filename, compileFile));
-			}
-			foreach (var warn in Asar.geterrors())
-			{
-				Console.WriteLine("  {0}", warn.Fullerrdata.Replace(warn.Filename, compileFile));
-			}
+
+            PrintWarningsAndErrors(compileFile);
 
 			if (!status)
 			{
@@ -555,14 +575,7 @@ namespace UberASMTool
 
             error = !Asar.patch(mainDirectory + "asm/work/clean.asm", ref rom.romData, pathList);
 
-            foreach (var warn in Asar.getwarnings())
-            {
-                Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
-            }
-            foreach (var warn in Asar.geterrors())
-            {
-                Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
-            }
+            PrintWarningsAndErrors("");
 
             if (error)
             {
@@ -1048,12 +1061,9 @@ namespace UberASMTool
 
 			if (Asar.patch(mainDirectory + "asm/work/main.asm", ref rom.romData, pathList))
 			{
-				foreach (var warn in Asar.getwarnings())
-				{
-					Console.WriteLine(warn.Fullerrdata);
-				}
+                PrintWarningsAndErrors("");
 
-				var prints = Asar.getprints();
+                var prints = Asar.getprints();
                 bool printed = false;
 
                 for (int i = 0; i < prints.Length; ++i)
@@ -1083,17 +1093,10 @@ namespace UberASMTool
 				WriteRestoreComment();
 			}
 			else
-			{
-				foreach (var warn in Asar.getwarnings())
-				{
-					Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
-				}
-				foreach (var warn in Asar.geterrors())
-				{
-					Console.WriteLine(warn.Fullerrdata.Replace(warn.Filename, ""));
-				}
+            {
+                PrintWarningsAndErrors("");
 
-				Console.WriteLine("Some errors occured while applying main patch. Process aborted.");
+                Console.WriteLine("Some errors occured while applying main patch. Process aborted.");
 				Console.WriteLine("Your ROM wasn't modified.");
 			}
 
