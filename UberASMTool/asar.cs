@@ -316,7 +316,8 @@ namespace AsarCLR
         /// <returns>All Asar's errors.</returns>
         public static Asarerror[] geterrors()
         {
-            RawAsarError* ptr = asar_geterrors(out int length);
+            int length;
+            RawAsarError* ptr = asar_geterrors(out length);
             return cleanerrors(ptr, length);
         }
 
@@ -326,7 +327,8 @@ namespace AsarCLR
         /// <returns>All Asar's warnings.</returns>
         public static Asarerror[] getwarnings()
         {
-            RawAsarError* ptr = asar_getwarnings(out int length);
+            int length;
+            RawAsarError* ptr = asar_getwarnings(out length);
             return cleanerrors(ptr, length);
         }
 
@@ -337,7 +339,8 @@ namespace AsarCLR
         /// <returns>All prints</returns>
         public static string[] getprints()
         {
-            void** ptr = asar_getprints(out int length);
+            int length;
+            void** ptr = asar_getprints(out length);
 
             string[] output = new string[length];
 
@@ -362,7 +365,8 @@ namespace AsarCLR
         /// <returns>All Asar's labels.</returns>
         public static Asarlabel[] getlabels()
         {
-            RawAsarLabel* ptr = asar_getalllabels(out int length);
+            int length;
+            RawAsarLabel* ptr = asar_getalllabels(out length);
             Asarlabel[] output = new Asarlabel[length];
 
             // Copy unmanaged to managed memory to avoid potential errors in case the area
@@ -408,7 +412,8 @@ namespace AsarCLR
         /// <returns>All Asar's defines.</returns>
         public static Asardefine[] getalldefines()
         {
-            RawAsarDefine* ptr = asar_getalldefines(out int length);
+            int length;
+            RawAsarDefine* ptr = asar_getalldefines(out length);
             Asardefine[] output = new Asardefine[length];
 
             // Copy unmanaged to managed memory to avoid potential errors in case the area
@@ -478,7 +483,8 @@ namespace AsarCLR
         /// <returns>All Asar's blocks written to the ROM.</returns>
         public static Asarwrittenblock[] getwrittenblocks()
         {
-            RawAsarWrittenBlock* ptr = asar_getwrittenblocks(out int length);
+            int length;
+            RawAsarWrittenBlock* ptr = asar_getwrittenblocks(out length);
             return CleanWrittenBlocks(ptr, length);
         }
 

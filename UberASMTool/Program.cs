@@ -138,7 +138,9 @@ namespace UberASMTool
 
                     if (!code.Inserted)
 					{
-						if (!CompileFile(levelContents, baseFolder, code.Path, baseFolder, true, out int startPc, out int endPc))
+                        int startPc, endPc;
+
+                        if (!CompileFile(levelContents, baseFolder, code.Path, baseFolder, true, out startPc, out endPc))
 						{
 							return;
 						}
@@ -1068,11 +1070,13 @@ namespace UberASMTool
 
                 for (int i = 0; i < prints.Length; ++i)
 				{
+                    int insertSize;
+
 					if (i + 1 != prints.Length)
 					{
 						Console.WriteLine(prints[i]);
 					}
-					else if (int.TryParse(prints[i], out int insertSize) && config.VerboseMode)
+					else if (int.TryParse(prints[i], out insertSize) && config.VerboseMode)
 					{
 						Console.WriteLine("Main patch insert size: {0} (0x{0:X4}) bytes", insertSize);
 						Console.WriteLine();
