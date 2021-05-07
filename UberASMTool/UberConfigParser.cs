@@ -8,10 +8,11 @@ namespace UberASMTool
 {
     class UberConfigParser
     {
+        private Logger logger = Logger.GetLogger();
+
         public string OverrideROM { get; set; }
 
         private string[] listFile;
-        private StringBuilder parseLog;
 
         private readonly List<Code> codeList = new List<Code>();
         private bool verbose = false;
@@ -26,7 +27,7 @@ namespace UberASMTool
 
         public string GetLogs()
         {
-            return parseLog.ToString();
+            return logger.GetOutput();
         }
 
         public UberConfig Build()
@@ -53,8 +54,6 @@ namespace UberASMTool
 
         public bool ParseList()
         {
-            parseLog = new StringBuilder();
-
             // 0 = level, 1 = ow, 2 = gamemode
             int mode = -1;
 
@@ -80,7 +79,7 @@ namespace UberASMTool
 
                 if (split.Length < 2)
                 {
-                    parseLog.AppendLine($"Line {i + 1} - error: missing file name or command.");
+                    logger.Error("Missing file name or command.", i);
                     return false;
                 }
 
@@ -155,7 +154,7 @@ namespace UberASMTool
                     }
                     catch
                     {
-                        WriteLog("invalid hex number.", i);
+                        logger.Error("invalid hex number.", i);
                         return false;
                     }
                 }
@@ -163,14 +162,14 @@ namespace UberASMTool
                 switch (mode)
                 {
                     case -1:
-                        WriteLog("unspecified code type (level/overworld/gamemode).", i);
+                        logger.Error("unspecified code type (level/overworld/gamemode).", i);
                         return false;
 
                     // level
                     case 0:
                         if (hexValue > 0x1FF)
                         {
-                            WriteLog("level out of range (000 - 1FF).", i);
+                            logger.Error("level out of range (000 - 1FF).", i);
                             return false;
                         }
                         break;
@@ -179,7 +178,7 @@ namespace UberASMTool
                     case 1:
                         if (hexValue > 6)
                         {
-                            WriteLog("overworld number out of range (0-6).", i);
+                            logger.Error("overworld number out of range (0-6).", i);
                             return false;
                         }
                         break;
@@ -188,7 +187,7 @@ namespace UberASMTool
                     case 2:
                         if (hexValue > 0xFF)
                         {
-                            WriteLog("game mode number out of range (00 - FF).", i);
+                            logger.Error("game mode number out of range (00 - FF).", i);
                             return false;
                         }
                         break;
@@ -201,7 +200,7 @@ namespace UberASMTool
                 }
                 catch (Exception ex)
                 {
-                    WriteLog(ex.Message, i);
+                    logger.Error(ex.Message, i);
                     return false;
                 }
             }
@@ -220,13 +219,13 @@ namespace UberASMTool
                 }
                 catch
                 {
-                    WriteLog($"invalid {defineType} hex number.", i);
+                    logger.Error($"invalid {defineType} hex number.", i);
                     return false;
                 }
             }
             else
             {
-                WriteLog($"{defineType} was already defined.", i, false);
+                logger.Warning($"{defineType} was already defined.", i);
                 return true;
             }
         }
@@ -242,13 +241,13 @@ namespace UberASMTool
                 }
                 else
                 {
-                    WriteLog("file does not exist.", i);
+                    logger.Error("file does not exist.", i);
                     return false;
                 }
             }
             else
             {
-                WriteLog($"{fileType} file was already defined, new define ignored.", i, false);
+                logger.Warning($"{fileType} file was already defined, new define ignored.", i);
                 return true;
             }
         }
@@ -257,32 +256,20 @@ namespace UberASMTool
         {
             if (macroLibraryFile == null)
             {
-                WriteLog("macro library file was not defined.");
+                logger.Error("macro library file was not defined.");
                 return false;
             }
             if (statusBarFile == null)
             {
-                WriteLog("status bar file was not defined.");
+                logger.Error("status bar file was not defined.");
                 return false;
             }
             if (globalFile == null)
             {
-                WriteLog("global file was not defined.");
+                logger.Error("global file was not defined.");
                 return false;
             }
             return true;
-        }
-
-        private void WriteLog(string description, int line = -1, bool error = true)
-        {
-            if (line == -1)
-            {
-                parseLog.AppendLine($"{(error ? "Error" : "Warning")}: {description}");
-            }
-            else
-            {
-                parseLog.AppendLine($"{(error ? "Error" : "Warning")}: line {line + 1} - {description}");
-            }
         }
 
         private void AddLevelCode(string path, int level, int type)
