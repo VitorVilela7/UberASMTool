@@ -919,6 +919,74 @@ namespace UberASMTool
 			}
 		}
 
+        static UberConfigProcessor LoadConfiguration(string listFile, string overrideRom)
+        {
+            var processor = new UberConfigProcessor();
+            processor.LoadListFile(listFile);
+
+            if (overrideRom != null)
+            {
+                processor.OverrideROM = overrideRom;
+            }
+
+            return processor;
+        }
+
+        static void LoadAndProcessConfiguration(string[] args)
+        {
+            const string defaultList = "list.txt";
+            UberConfigProcessor processor;
+
+            if (args.Length == 2)
+            {
+                try
+                {
+                    processor = LoadConfiguration(args[0], args[1]);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
+                    Pause();
+                    return;
+                }
+            }
+            else if (args.Length == 1)
+            {
+                try
+                {
+                    processor = LoadConfiguration(args[0], null);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
+                    Pause();
+                    return;
+                }
+            }
+            else if (File.Exists(defaultList))
+            {
+                processor = LoadConfiguration(defaultList, null);
+            }
+            else
+            {
+                Console.WriteLine("list.txt not found.");
+                Pause();
+                return;
+            }
+
+            Console.WriteLine();
+
+            if (!processor.ParseList())
+            {
+                Console.WriteLine("Could not parse list file!");
+                Console.WriteLine(processor.GetLogs());
+                Pause();
+                return;
+            }
+
+            config = processor.Build();
+        }
+
 		static void Main(string[] args)
 		{
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
@@ -951,60 +1019,7 @@ namespace UberASMTool
 				}
 			}
 
-            UberConfigParser parser = new UberConfigParser();
-
-			if (args.Length == 2)
-			{
-                parser.OverrideROM = args[1];
-
-				try
-				{
-                    parser.LoadListFile(args[0]);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
-					Pause();
-					return;
-				}
-			}
-			else if (args.Length == 1)
-            {
-                parser.OverrideROM = null;
-
-                try
-                {
-                    parser.LoadListFile(args[0]);
-                }
-				catch(Exception ex)
-				{
-					Console.WriteLine("Can't read {0}: {1}.", args[0], ex.Message);
-					Pause();
-					return;
-				}
-			}
-			else if (File.Exists("list.txt"))
-            {
-                parser.LoadListFile("list.txt");
-            }
-			else
-			{
-				Console.WriteLine("list.txt not found.");
-				Pause();
-				return;
-			}
-
-			Console.WriteLine();
-
-            if (!parser.ParseList())
-            {
-                Console.WriteLine("Could not parse list file!");
-                Console.WriteLine(parser.GetLogs());
-                Pause();
-                return;
-            }
-
-            config = parser.Build();
+            LoadAndProcessConfiguration(args);
 
 			if (config.ROMPath == null)
 			{

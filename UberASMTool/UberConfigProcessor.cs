@@ -6,7 +6,7 @@ using System.Text;
 
 namespace UberASMTool
 {
-    class UberConfigParser
+    class UberConfigProcessor
     {
         private Logger logger = Logger.GetLogger();
 

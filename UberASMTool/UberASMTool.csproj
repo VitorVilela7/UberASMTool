@@ -90,7 +90,8 @@
     <Compile Include="Code.cs" />
     <Compile Include="DataCollector.cs" />
     <Compile Include="FileUtils.cs" />
-    <Compile Include="UberConfigParser.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="UberConfigProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ROM.cs" />
