@@ -1,0 +1,184 @@
+UberASM v2.0 Assembly Specification File
+
+=============
+= A: syntax =
+=============
+
+1- All .asm files are pre-processed by UberASM Tool before getting patched with Asar.
+========
+
+The files are read by a processor which changes the file contents and load additional required
+resources before the file can get correctly assembled by Asar.
+
+Example: library dependencies.
+
+2- Special UberASM Tool commands start with ;> at the beginning of a line.
+========
+
+UberASM Tool will detect for ";>" and process only if it's on the beginning of a line.
+
+This is needed to keep compilant with Asar ASM syntax, so situations such as this:
+
+db "Test ;>file"
+
+Won't result in ambiguity, since UberASM can mistakenly interpret ;>file as a command while it's
+inside a string. This can apply to other situations where Asar doesn't understand ";" as a comment.
+
+3- It's required to the command start as soon as prefix is present, with optional unlimited amount
+of parameters.
+========
+
+Example of UberASM special commands:
+;>import my_library
+
+In case there is a non-alphanumeric character after ";>", the command is ignored.
+
+Example:
+
+;> this appears to be a regular comment.
+; > this appears to be a regular comment.
+;>$FF this appears to be something else
+;>7 this appears to be something else
+
+4- There is no escaping characters.
+========
+
+Situations where it's expected a new line or a special between arguments should never happen and
+can be considered a design fault if some command ends up requiring it.
+
+Example - hypothetical alias command that references a file with spaces:
+;>alias my file.asm my_file
+
+It's not clear if "my file.asm" is part of a first command or not and how to proceed with my_file
+2nd paramter.
+
+5- Some commands may required to be declared at top of the file.
+========
+
+Commands such as "import" can only be declared at the beginning of the file. Beginning of the
+file means empty, white-space, comment-only or begging-only UberASM commands.
+
+========================================
+= B: List of UberASM Assembly Commands =
+========================================
+
+1- 'import' command.
+========
+File-beginning command only.
+
+The import command is used for telling UberASM Tool that the currently being processed file depends
+on a specific library and the library labels must be available before proceeding, if not available
+already.
+
+The command is required if the currently processing .asm file is part of the library. For other
+.asm files such as level ASM, overworld ASM, etc., it's optional unless if strict space saving mode
+is enabled.
+
+IMPORTANT: Cyclic references are not allowed.
+
+Example - a library file that requires math related commands on another library:
+
+== START OF FILE
+
+;>import math
+
+; outputs A = A*A
+power:
+  STA $00
+  STA $01
+
+  ; call library to multiply $00 = $00 * $01
+  JSL math_multiply
+
+  LDA $00
+  RTL
+
+== END OF FILE
+
+A wildcard "*" can be used to import all libraries prefixed before "*". It can only be used at the
+end of the file.
+
+Example:
+We have libraries hdma_gradient_layer, hdma_wavy_layer, and hdma_windowing available.
+It's suggested that they are from these files:
+
+hdma_gradient_layer.asm
+hdma_wavy_layer.asm
+hdma_windowing.asm
+
+We need all three imports, so instead of doing:
+
+;>import hdma_gradient_layer
+;>import hdma_wavy_layer
+;>import hdma_windowing
+
+You can do:
+
+;>import hdma_*
+
+alternatively:
+
+;>import hdma*
+
+However, you CANNOT do:
+
+;>import hdma_*_layer
+
+For this case, it would theorically import hdma_gradient_layer and hdma_wavy_layer. But "*" is
+only allowed at the end of library name reference.
+
+WARNING: when using "import" command, you are also telling UberASM Tool that only the imports
+specified are needed, so other unspecified libraries labels won't be included.
+
+2- 'import' command with alias:
+========
+File-beginning command only.
+
+The import command can also create aliases. This can be useful for not having to reference long
+label names. For example, a library file hdma_gradient_layer.asm has the following labels:
+
+init:
+  ;*insert code here*
+
+scroll:
+  ;*insert code here*
+
+On your main code, you would need to reference them using the labels "hdma_gradient_layer_init" and
+"hdma_gradient_layer_scroll". However, to not have to write a such long label, you can use the "as"
+keyword on the import command for creating your own alias.
+
+Example:
+
+;>import hdma_gradient_layer as gradient
+
+With such command, instead of referencing "hdma_gradient_layer_init" you can use "gradient_init"
+and instead of "hdma_gradient_layer_scroll" you can use "gradient_scroll"
+
+You can also completely inline the import, making the labels stay in the same "namespace" as your
+code, using the "inline" command instead of "as".
+
+Example:
+
+;>import hdma_gradient_layer inline
+
+For this case, instead of referencing "hdma_gradient_layer_init", you can simply use "init"
+and for "hdma_gradient_layer_scroll" you can use "scroll".
+
+IMPORTANT: if some inlined label collides with a definition label (such as init, main, nmi, load,
+etc.) UberASM Tool will throw an error. This also applies when inlining or aliasing two libraries
+and they end up with exact label names.
+
+For this situation, you can use the RENAME command to rename label names before conflicting.
+
+Example:
+;>import hdma_gradient_layer inline
+;>rename hdma_gradient_layer_init as ginit
+
+Fun fact: import with alias or import with inline is basically an import with implied rename
+commands.
+
+3- 'rename' command
+========
+File-beginning command only.
+
+TBD
