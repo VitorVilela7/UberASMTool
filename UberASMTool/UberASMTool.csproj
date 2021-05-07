@@ -91,6 +91,8 @@
     <Compile Include="DataCollector.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="UberAssemblyFile.cs" />
+    <Compile Include="UberAssemblyProcessor.cs" />
     <Compile Include="UberConfigProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

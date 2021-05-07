@@ -10,7 +10,7 @@ namespace UberASMTool
 {
     class Program
     {
-        const string labelLibraryFile = "asm/work/library.asm";
+        public const string LabelLibraryFile = "asm/work/library.asm";
 
         private static string mainDirectory;
 		private static string[] pathList;
@@ -19,6 +19,8 @@ namespace UberASMTool
         private static UberConfig config;
 
 		private static int totalInsertSize;
+
+        private static UberAssemblyProcessor assemblyProcessor = new UberAssemblyProcessor();
 
 		/// <summary>
 		/// level, overworld, gamemode, global.
@@ -389,19 +391,7 @@ namespace UberASMTool
 
 		private static string GenerateBasefile(string input, bool library, string fileName, string directoryBase)
 		{
-			string fix = FileUtils.FixPath(fileName, directoryBase);
-			StringBuilder output = new StringBuilder();
-
-			if (library)
-			{
-				output.AppendFormat("incsrc \"{1}{0}\" : ", labelLibraryFile, fix);
-			}
-			output.AppendFormat("incsrc \"{1}{0}\" : ", config.MacroLibraryFile, fix);
-			output.Append("freecode cleaned : ");
-			output.AppendLine("print \"_startl \", pc");
-			output.AppendLine(input);
-			output.AppendLine("print \"_endl \", pc");
-			return output.ToString();
+            return assemblyProcessor.LoadAndProcessFile(input, library, fileName, directoryBase, config.MacroLibraryFile).ProcessedContents;
 		}
 
         private static void PrintWarningsAndErrors(string originalFile)
@@ -653,7 +643,7 @@ namespace UberASMTool
 			// prepare main file
 			StringBuilder mainFile = new StringBuilder();
 
-			mainFile.AppendFormat("incsrc \"{0}\"", labelLibraryFile);
+			mainFile.AppendFormat("incsrc \"{0}\"", LabelLibraryFile);
 			mainFile.AppendLine();
 			mainFile.AppendFormat("incsrc \"../../{0}\"", config.MacroLibraryFile);
 			mainFile.AppendLine();
@@ -858,7 +848,7 @@ namespace UberASMTool
 				sb.AppendLine();
 			}
 
-			File.WriteAllText(labelLibraryFile, sb.ToString());
+			File.WriteAllText(LabelLibraryFile, sb.ToString());
 
 			if (labelList.Count == 0 || !config.VerboseMode)
 			{
