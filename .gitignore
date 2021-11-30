@@ -245,3 +245,6 @@ obj/
 
 # Debug builds
 Debug/
+
+# Release builds
+Release/
