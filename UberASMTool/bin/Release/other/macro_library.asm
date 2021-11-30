@@ -112,7 +112,7 @@ endmacro
 %define_sprite_table("extra_byte_1",$7FAB40,$400099)
 %define_sprite_table("extra_byte_2",$7FAB4C,$4000AF)
 %define_sprite_table("extra_byte_3",$7FAB58,$4000C5)
-%define_sprite_table("extra_byte_4",$7FAB64,$4000D8)
+%define_sprite_table("extra_byte_4",$7FAB64,$4000DB)
 %define_sprite_table(sprite_num, $9E, $3200)
 %define_sprite_table(sprite_speed_y, $AA, $9E)
 %define_sprite_table(sprite_speed_x, $B6, $B6)
