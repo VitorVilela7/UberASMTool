@@ -40,6 +40,18 @@ Features:
 -                         Version History                           -
 ---------------------------------------------------------------------
 
+Version 1.5:
+ - Fixed an in-game crash when using different NMI code combinations
+ - Refactored some core parts of the program, making it easier to
+add improvements.
+ - Improved the way how the LM restore point information works in a
+way that UberASM Tool will no longer concat its program information
+more than once.
+ - Fixed incorrect extra byte 4 define used for PIXI sprites.
+ - Added BW-RAM definition which is used on SA-1 ROMs only.
+ - Fixed an application crash when accidentally including an empty
+file.
+
 Version 1.4:
 - Updated Asar to 1.71.
 - Fixed newer Asar printing weird path-related warnings.
