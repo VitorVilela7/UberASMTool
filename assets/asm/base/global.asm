@@ -160,7 +160,7 @@ nmi_hijack:
 		
 		PLB
 		LDA $1DFB|!addr	; return
-		JML $00817C
+		JML $00817C|!bank
 	
 	+	CMP #$0D
 		BEQ ++
@@ -212,7 +212,7 @@ nmi_hijack:
 	
 	PLB
 	LDA $1DFB|!addr
-	JML $00817C
+	JML $00817C|!bank
 	
 nmi_run_code:
 	STA $6F
