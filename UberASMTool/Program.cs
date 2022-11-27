@@ -1010,7 +1010,14 @@ namespace UberASMTool
 			}
 
             LoadAndProcessConfiguration(args);
-
+			
+			if (config == null) 
+			{
+				// something went wrong when loading the configuration
+				// the error message and the Pause() were already given by LoadAndProcessConfiguration()
+				return;
+			}
+			
 			if (config.ROMPath == null)
 			{
 				Console.WriteLine("ROM file not given.");
